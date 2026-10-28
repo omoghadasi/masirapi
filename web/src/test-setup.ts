@@ -28,6 +28,14 @@ import { afterEach, beforeAll } from 'vitest'
 // failures still report the missing element instead of a generic test timeout.
 configure({ asyncUtilTimeout: 5000 })
 
+// The app's i18n config (see @/i18n/config) defaults to Persian for a visitor
+// who has not chosen a language. Tests assert English text, so cache English as
+// the visitor's choice before any test module imports that config — the same
+// stored value the language switcher writes for a real user.
+if (typeof localStorage !== 'undefined') {
+  localStorage.setItem('i18nextLng', 'en')
+}
+
 beforeAll(async () => {
   await i18next.use(initReactI18next).init({
     lng: 'en',

@@ -70,8 +70,8 @@ function DetailSection(props: {
   )
 }
 
-function formatTaskTimestamp(value?: number): string {
-  return value ? formatTimestampToDate(value, 'seconds') : '-'
+function formatTaskTimestamp(value?: number, locale?: string): string {
+  return value ? formatTimestampToDate(value, 'seconds', locale) : '-'
 }
 
 interface TaskDetailsDialogProps {

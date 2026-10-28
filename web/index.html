@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,6 +29,21 @@
             : 'light'
         }
         document.documentElement.classList.add(theme)
+      })()
+    </script>
+    <!-- Resolve language and direction before first paint, matching the
+         runtime defaults (see i18n/config.ts and DirectionProvider): Persian
+         unless the visitor stored another language. Keep the storage key in
+         sync with LanguageDetector's `lookupLocalStorage`. -->
+    <script>
+      ;(function () {
+        var lang = 'fa'
+        try {
+          lang = localStorage.getItem('i18nextLng') || 'fa'
+        } catch (e) {}
+        var isFa = /^fa([-_]|$)/i.test(lang)
+        document.documentElement.setAttribute('lang', isFa ? 'fa' : lang)
+        document.documentElement.setAttribute('dir', isFa ? 'rtl' : 'ltr')
       })()
     </script>
     <!--umami-->
