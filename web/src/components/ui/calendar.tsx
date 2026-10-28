@@ -60,7 +60,7 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>['variant']
 }) {
   const { i18n } = useTranslation()
-  const direction = useDirection()
+  const { dir } = useDirection()
   const intlLocale = toIntlLocale(i18n.resolvedLanguage || i18n.language)
   const defaultClassNames = getDefaultClassNames()
 
@@ -234,7 +234,7 @@ function Calendar({
           {...dayPickerProps}
           locale={undefined}
           formatters={formatters}
-          dir={direction}
+          dir={dir}
           numerals={numerals}
         />
       </React.Suspense>
