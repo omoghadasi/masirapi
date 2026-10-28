@@ -283,3 +283,31 @@ func TestEpayCallbacksVerifyBeforeSettlement(t *testing.T) {
 		}
 	}
 }
+
+func TestZarinpalWebhookEnabledRequiresComplianceAndMerchantID(t *testing.T) {
+	confirmPaymentComplianceForTest(t)
+	zarinpal := setting.GetZarinpalSetting()
+	originalEnabled := zarinpal.Enabled
+	originalMerchantID := zarinpal.MerchantID
+	t.Cleanup(func() {
+		zarinpal.Enabled = originalEnabled
+		zarinpal.MerchantID = originalMerchantID
+	})
+
+	zarinpal.Enabled = true
+	zarinpal.MerchantID = "  "
+	require.False(t, isZarinpalWebhookEnabled())
+
+	zarinpal.MerchantID = "00000000-0000-0000-0000-000000000000"
+	require.True(t, isZarinpalWebhookEnabled())
+
+	zarinpal.Enabled = false
+	require.False(t, isZarinpalWebhookEnabled())
+
+	// An unconfirmed compliance statement disables every online gateway,
+	// including one that is fully configured.
+	zarinpal.Enabled = true
+	paymentSetting := operation_setting.GetPaymentSetting()
+	paymentSetting.ComplianceConfirmed = false
+	require.False(t, isZarinpalTopUpEnabled())
+}

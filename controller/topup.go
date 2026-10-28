@@ -97,12 +97,34 @@ func GetTopUpInfo(c *gin.Context) {
 		}
 	}
 
+	// 如果启用了 ZarinPal 支付，添加到支付方法列表
+	if isZarinpalTopUpEnabled() {
+		hasZarinpal := false
+		for _, method := range payMethods {
+			if method["type"] == model.PaymentMethodZarinpal {
+				hasZarinpal = true
+				break
+			}
+		}
+
+		if !hasZarinpal {
+			payMethods = append(payMethods, map[string]string{
+				"name":      "ZarinPal",
+				"type":      model.PaymentMethodZarinpal,
+				"color":     "#F5A623",
+				"min_topup": strconv.FormatInt(setting.GetZarinpalSetting().MinTopUp, 10),
+			})
+		}
+	}
+
 	data := gin.H{
 		"enable_online_topup":              isEpayTopUpEnabled(),
 		"enable_stripe_topup":              isStripeTopUpEnabled(),
 		"enable_creem_topup":               isCreemTopUpEnabled(),
 		"enable_waffo_topup":               enableWaffo,
 		"enable_waffo_pancake_topup":       enableWaffoPancake,
+		"enable_zarinpal_topup":            isZarinpalTopUpEnabled(),
+		"zarinpal_min_topup":               setting.GetZarinpalSetting().MinTopUp,
 		"enable_redemption":                complianceConfirmed,
 		"payment_compliance_confirmed":     complianceConfirmed,
 		"payment_compliance_terms_version": operation_setting.CurrentComplianceTermsVersion,

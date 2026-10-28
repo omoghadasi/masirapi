@@ -29,6 +29,7 @@ import type {
   AmountResponse,
   PaymentResponse,
   StripePaymentResponse,
+  ZarinpalPaymentResponse,
   AffiliateCodeResponse,
   AffiliateTransferResponse,
   BillingHistoryResponse,
@@ -128,6 +129,18 @@ export async function requestStripePayment(
   request: PaymentRequest
 ): Promise<StripePaymentResponse> {
   const res = await api.post('/api/user/stripe/pay', request, {
+    skipBusinessError: true,
+  } as Record<string, unknown>)
+  return res.data
+}
+
+/**
+ * Request ZarinPal payment
+ */
+export async function requestZarinpalPayment(
+  request: PaymentRequest
+): Promise<ZarinpalPaymentResponse> {
+  const res = await api.post('/api/user/zarinpal/pay', request, {
     skipBusinessError: true,
   } as Record<string, unknown>)
   return res.data

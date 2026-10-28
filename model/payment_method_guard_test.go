@@ -353,3 +353,70 @@ func TestRechargeEpayEnforcesFinalWalletQuotaLimit(t *testing.T) {
 		})
 	}
 }
+
+func createZarinpalTestOrder(t *testing.T, userId int, tradeNo string, provider string, status string) TopUp {
+	t.Helper()
+	topUp := TopUp{
+		UserId:          userId,
+		Amount:          2,
+		Money:           10.0,
+		TradeNo:         tradeNo,
+		PaymentMethod:   PaymentMethodZarinpal,
+		PaymentProvider: provider,
+		CreateTime:      common.GetTimestamp(),
+		Status:          status,
+	}
+	require.NoError(t, DB.Create(&topUp).Error)
+	return topUp
+}
+
+// ZarinPal sends no server-to-server notification, so the payer's browser can
+// deliver the callback repeatedly. Settlement must credit exactly once and
+// refuse orders that belong to another gateway or are no longer pending.
+func TestRechargeZarinpalCreditsQuotaOnceAndRejectsOtherOrders(t *testing.T) {
+	truncateTables(t)
+
+	oldQuotaPerUnit := common.QuotaPerUnit
+	common.QuotaPerUnit = 500000
+	t.Cleanup(func() { common.QuotaPerUnit = oldQuotaPerUnit })
+
+	user := insertUserForPaymentGuardTest(t, 507, 11)
+	order := createZarinpalTestOrder(t, user.Id, "ZARINPALTESTONCE", PaymentProviderZarinpal, common.TopUpStatusPending)
+
+	alreadyDone, err := RechargeZarinpal(order.TradeNo, "127.0.0.1")
+	require.NoError(t, err)
+	assert.False(t, alreadyDone)
+	assert.Equal(t, 11+2*500000, getUserQuotaForPaymentGuardTest(t, user.Id))
+
+	alreadyDone, err = RechargeZarinpal(order.TradeNo, "127.0.0.1")
+	require.NoError(t, err)
+	assert.True(t, alreadyDone)
+	assert.Equal(t, 11+2*500000, getUserQuotaForPaymentGuardTest(t, user.Id))
+
+	foreign := createZarinpalTestOrder(t, user.Id, "ZARINPALFOREIGN", PaymentProviderEpay, common.TopUpStatusPending)
+	_, err = RechargeZarinpal(foreign.TradeNo, "127.0.0.1")
+	require.ErrorIs(t, err, ErrPaymentMethodMismatch)
+
+	failed := createZarinpalTestOrder(t, user.Id, "ZARINPALFAILED", PaymentProviderZarinpal, common.TopUpStatusFailed)
+	_, err = RechargeZarinpal(failed.TradeNo, "127.0.0.1")
+	require.ErrorIs(t, err, ErrTopUpStatusInvalid)
+
+	assert.Equal(t, common.TopUpStatusPending, getTopUpStatusForPaymentGuardTest(t, foreign.TradeNo))
+	assert.Equal(t, 11+2*500000, getUserQuotaForPaymentGuardTest(t, user.Id))
+}
+
+func TestRechargeZarinpalRejectsQuotaOverflowBeforeCompletingOrder(t *testing.T) {
+	truncateTables(t)
+
+	oldQuotaPerUnit := common.QuotaPerUnit
+	common.QuotaPerUnit = float64(common.MaxWalletQuota + 1)
+	t.Cleanup(func() { common.QuotaPerUnit = oldQuotaPerUnit })
+
+	user := insertUserForPaymentGuardTest(t, 508, 3)
+	order := createZarinpalTestOrder(t, user.Id, "ZARINPALTESTOVERFLOW", PaymentProviderZarinpal, common.TopUpStatusPending)
+
+	_, err := RechargeZarinpal(order.TradeNo, "127.0.0.1")
+	require.Error(t, err)
+	assert.Equal(t, 3, getUserQuotaForPaymentGuardTest(t, user.Id))
+	assert.Equal(t, common.TopUpStatusPending, getTopUpStatusForPaymentGuardTest(t, order.TradeNo))
+}

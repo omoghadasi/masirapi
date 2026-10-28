@@ -111,6 +111,17 @@ export function isWaffoPancakePayment(paymentType: string): boolean {
   return paymentType === PAYMENT_TYPES.WAFFO_PANCAKE
 }
 
+/**
+ * Check if payment method is ZarinPal
+ *
+ * ZarinPal answers with a hosted checkout URL instead of an epay form, and it
+ * settles the order on the browser redirect after a server-side verification,
+ * so it must be special-cased in payment dispatch logic.
+ */
+export function isZarinpalPayment(paymentType: string): boolean {
+  return paymentType === PAYMENT_TYPES.ZARINPAL
+}
+
 export interface PaymentProcessors {
   regular: (topupAmount: number, paymentType: string) => Promise<boolean>
   waffo: (topupAmount: number, payMethodIndex: number) => Promise<boolean>
@@ -162,6 +173,10 @@ export function getDefaultPaymentType(topupInfo: TopupInfo | null): string {
     return PAYMENT_TYPES.WAFFO_PANCAKE
   }
 
+  if (topupInfo.enable_zarinpal_topup) {
+    return PAYMENT_TYPES.ZARINPAL
+  }
+
   return DEFAULT_PAYMENT_TYPE
 }
 
@@ -187,6 +202,10 @@ export function getMinTopupAmount(topupInfo: TopupInfo | null): number {
 
   if (topupInfo.enable_waffo_pancake_topup) {
     return topupInfo.waffo_pancake_min_topup || DEFAULT_MIN_TOPUP
+  }
+
+  if (topupInfo.enable_zarinpal_topup) {
+    return topupInfo.zarinpal_min_topup || DEFAULT_MIN_TOPUP
   }
 
   return DEFAULT_MIN_TOPUP
