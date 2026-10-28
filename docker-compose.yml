@@ -72,7 +72,7 @@ services:
       retries: 3
 
   redis:
-    image: redis:latest
+    image: docker.arvancloud.ir/redis:latest
     container_name: redis
     restart: always
     command: ["redis-server", "--requirepass", "123456"] # ⚠️ IMPORTANT: Change this password in production!
@@ -80,7 +80,7 @@ services:
       - new-api-network
 
   postgres:
-    image: postgres:15
+    image: docker.arvancloud.ir/postgres:15
     container_name: postgres
     restart: always
     environment:
