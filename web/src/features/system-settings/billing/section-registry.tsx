@@ -22,7 +22,6 @@ import { CheckinSettingsSection } from '../general/checkin-settings-section'
 import { PricingSection } from '../general/pricing-section'
 import { QuotaSettingsSection } from '../general/quota-settings-section'
 import { PaymentSettingsSection } from '../integrations/payment-settings-section'
-import { ZarinpalSettingsSection } from '../integrations/zarinpal-settings-section'
 import { RatioSettingsCard } from '../models/ratio-settings-card'
 import type { BillingSettings } from '../types'
 import { createSectionRegistry } from '../utils/section-registry'
@@ -179,6 +178,16 @@ const BILLING_SECTIONS = [
         }}
         waffoPancakeProvisionedStoreID={settings.WaffoPancakeStoreID ?? ''}
         waffoPancakeProvisionedProductID={settings.WaffoPancakeProductID ?? ''}
+        zarinpalDefaultValues={{
+          ZarinpalEnabled: settings['zarinpal_setting.enabled'] ?? false,
+          ZarinpalMerchantID: settings['zarinpal_setting.merchant_id'] ?? '',
+          ZarinpalSandbox: settings['zarinpal_setting.sandbox'] ?? false,
+          ZarinpalAmountUnit:
+            settings['zarinpal_setting.amount_unit'] === 'rial'
+              ? 'rial'
+              : 'toman',
+          ZarinpalMinTopUp: settings['zarinpal_setting.min_topup'] ?? 1,
+        }}
         complianceDefaults={{
           confirmed: settings['payment_setting.compliance_confirmed'] ?? false,
           termsVersion:
@@ -188,11 +197,6 @@ const BILLING_SECTIONS = [
         }}
       />
     ),
-  },
-  {
-    id: 'zarinpal',
-    titleKey: 'ZarinPal Gateway',
-    build: () => <ZarinpalSettingsSection />,
   },
   {
     id: 'checkin',

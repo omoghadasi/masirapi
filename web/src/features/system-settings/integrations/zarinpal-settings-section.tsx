@@ -16,21 +16,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import * as z from 'zod'
 
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -39,225 +28,139 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 
-import {
-  SettingsForm,
-  SettingsSwitchContent,
-  SettingsSwitchItem,
-} from '../components/settings-form-layout'
-import { SettingsPageFormActions } from '../components/settings-page-context'
-import { SettingsSection } from '../components/settings-section'
-import { useResetForm } from '../hooks/use-reset-form'
-import { useSystemOptions, getOptionValue } from '../hooks/use-system-options'
-import { useUpdateOption } from '../hooks/use-update-option'
-import { safeNumberFieldProps } from '../utils/numeric-field'
+import { SettingsSwitchField } from '../components/settings-form-layout'
 
-const ZARINPAL_AMOUNT_UNITS = ['toman', 'rial'] as const
-
-const createZarinpalSchema = (t: (key: string) => string) =>
-  z.object({
-    enabled: z.boolean(),
-    merchant_id: z.string(),
-    sandbox: z.boolean(),
-    amount_unit: z.enum(ZARINPAL_AMOUNT_UNITS),
-    min_topup: z.number().int().min(1, t('Value must be at least 1')),
-  })
-
-type ZarinpalFormValues = z.infer<ReturnType<typeof createZarinpalSchema>>
-
-const ZARINPAL_DEFAULT_OPTIONS = {
-  'zarinpal_setting.enabled': false,
-  'zarinpal_setting.merchant_id': '',
-  'zarinpal_setting.sandbox': false,
-  'zarinpal_setting.amount_unit': 'toman',
-  'zarinpal_setting.min_topup': 1,
+// The zarinpal_setting.* option keys, mapped to the flat PaymentFormValues
+// field names the shared payment form uses.
+export interface ZarinpalSettingsValues {
+  ZarinpalEnabled: boolean
+  ZarinpalMerchantID: string
+  ZarinpalSandbox: boolean
+  ZarinpalAmountUnit: string
+  ZarinpalMinTopUp: number
 }
 
-type ZarinpalOptionKey = keyof typeof ZARINPAL_DEFAULT_OPTIONS
+export const ZARINPAL_OPTION_KEYS = {
+  ZarinpalEnabled: 'zarinpal_setting.enabled',
+  ZarinpalMerchantID: 'zarinpal_setting.merchant_id',
+  ZarinpalSandbox: 'zarinpal_setting.sandbox',
+  ZarinpalAmountUnit: 'zarinpal_setting.amount_unit',
+  ZarinpalMinTopUp: 'zarinpal_setting.min_topup',
+} as const satisfies Record<keyof ZarinpalSettingsValues, string>
 
-function toFormValues(
-  options: Record<ZarinpalOptionKey, string | number | boolean>
-): ZarinpalFormValues {
-  return {
-    enabled: options['zarinpal_setting.enabled'] === true,
-    merchant_id: String(options['zarinpal_setting.merchant_id']),
-    sandbox: options['zarinpal_setting.sandbox'] === true,
-    amount_unit:
-      options['zarinpal_setting.amount_unit'] === 'rial' ? 'rial' : 'toman',
-    min_topup: Number(options['zarinpal_setting.min_topup']) || 1,
-  }
+interface Props {
+  values: ZarinpalSettingsValues
+  onValueChange: <K extends keyof ZarinpalSettingsValues>(
+    key: K,
+    value: ZarinpalSettingsValues[K]
+  ) => void
 }
 
-export function ZarinpalSettingsSection() {
+export function ZarinpalSettingsSection({ values, onValueChange }: Props) {
   const { t } = useTranslation()
-  const updateOption = useUpdateOption()
-  const { data } = useSystemOptions()
-  const defaultValues = toFormValues(
-    getOptionValue(data?.data, ZARINPAL_DEFAULT_OPTIONS)
-  )
-  const zarinpalSchema = createZarinpalSchema(t)
-
-  const form = useForm<ZarinpalFormValues>({
-    resolver: zodResolver(zarinpalSchema),
-    defaultValues,
-  })
-
-  useResetForm(form, defaultValues)
-
-  const onSubmit = async (values: ZarinpalFormValues) => {
-    const merchantID = values.merchant_id.trim()
-    const updates: Array<{ key: string; value: string | number | boolean }> = [
-      { key: 'zarinpal_setting.enabled', value: values.enabled },
-      { key: 'zarinpal_setting.merchant_id', value: merchantID },
-      { key: 'zarinpal_setting.sandbox', value: values.sandbox },
-      { key: 'zarinpal_setting.amount_unit', value: values.amount_unit },
-      { key: 'zarinpal_setting.min_topup', value: values.min_topup },
-    ]
-
-    for (const update of updates) {
-      await updateOption.mutateAsync(update)
-    }
-  }
 
   return (
-    <SettingsSection title={t('ZarinPal Gateway')}>
-      <Form {...form}>
-        <SettingsForm onSubmit={form.handleSubmit(onSubmit)} autoComplete='off'>
-          <SettingsPageFormActions
-            onSave={form.handleSubmit(onSubmit)}
-            isSaving={updateOption.isPending}
-            saveLabel='Save ZarinPal settings'
-          />
+    <div className='space-y-4 pt-4'>
+      <div>
+        <h3 className='text-lg font-medium'>{t('ZarinPal Gateway')}</h3>
+        <p className='text-muted-foreground text-sm'>
+          {t('Requires the payment compliance confirmation and a merchant ID.')}
+        </p>
+      </div>
 
-          <FormField
-            control={form.control}
-            name='enabled'
-            render={({ field }) => (
-              <SettingsSwitchItem>
-                <SettingsSwitchContent>
-                  <FormLabel>{t('Enable ZarinPal')}</FormLabel>
-                  <FormDescription>
-                    {t(
-                      'Requires the payment compliance confirmation and a merchant ID.'
-                    )}
-                  </FormDescription>
-                </SettingsSwitchContent>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </SettingsSwitchItem>
-            )}
-          />
+      <div className='grid gap-4 sm:grid-cols-2'>
+        <SettingsSwitchField
+          checked={values.ZarinpalEnabled}
+          onCheckedChange={(v) => onValueChange('ZarinpalEnabled', v)}
+          label={t('Enable ZarinPal')}
+          className='py-0'
+        />
+        <SettingsSwitchField
+          checked={values.ZarinpalSandbox}
+          onCheckedChange={(v) => onValueChange('ZarinpalSandbox', v)}
+          label={t('Use ZarinPal sandbox')}
+          description={t('Routes payments to the sandbox gateway for testing.')}
+          className='py-0'
+        />
+      </div>
 
-          <FormField
-            control={form.control}
-            name='merchant_id'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('ZarinPal Merchant ID')}</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder={t('Enter the merchant ID from the panel')}
-                    autoComplete='off'
-                    {...field}
-                    onChange={(event) => field.onChange(event.target.value)}
-                  />
-                </FormControl>
-                <FormDescription>
-                  {t(
-                    'The gateway credential used to request and verify payments.'
-                  )}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+      <div className='grid grid-cols-2 gap-4'>
+        <div className='grid gap-1.5'>
+          <Label htmlFor='zarinpal-merchant-id'>
+            {t('ZarinPal Merchant ID')}
+          </Label>
+          <Input
+            id='zarinpal-merchant-id'
+            type='password'
+            placeholder={t('Enter the merchant ID from the panel')}
+            autoComplete='off'
+            value={values.ZarinpalMerchantID}
+            onChange={(event) =>
+              onValueChange('ZarinpalMerchantID', event.target.value)
+            }
           />
+          <p className='text-muted-foreground text-xs'>
+            {t('The gateway credential used to request and verify payments.')}
+          </p>
+        </div>
 
-          <FormField
-            control={form.control}
-            name='sandbox'
-            render={({ field }) => (
-              <SettingsSwitchItem>
-                <SettingsSwitchContent>
-                  <FormLabel>{t('Use ZarinPal sandbox')}</FormLabel>
-                  <FormDescription>
-                    {t('Routes payments to the sandbox gateway for testing.')}
-                  </FormDescription>
-                </SettingsSwitchContent>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </SettingsSwitchItem>
+        <div className='grid gap-1.5'>
+          <Label>{t('Payment amount unit')}</Label>
+          <Select
+            items={[
+              { value: 'toman', label: t('Toman') },
+              { value: 'rial', label: t('Rial') },
+            ]}
+            value={values.ZarinpalAmountUnit}
+            onValueChange={(v) =>
+              onValueChange('ZarinpalAmountUnit', v ?? 'toman')
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t('Select amount unit')} />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectGroup>
+                <SelectItem value='toman'>{t('Toman')}</SelectItem>
+                <SelectItem value='rial'>{t('Rial')}</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <p className='text-muted-foreground text-xs'>
+            {t(
+              'The unit of the top-up price. ZarinPal always bills in Rial, so amounts in Toman are multiplied by ten.'
             )}
-          />
+          </p>
+        </div>
 
-          <FormField
-            control={form.control}
-            name='amount_unit'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('Payment amount unit')}</FormLabel>
-                <Select
-                  items={[
-                    { value: 'toman', label: t('Toman') },
-                    { value: 'rial', label: t('Rial') },
-                  ]}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('Select amount unit')} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent alignItemWithTrigger={false}>
-                    <SelectGroup>
-                      <SelectItem value='toman'>{t('Toman')}</SelectItem>
-                      <SelectItem value='rial'>{t('Rial')}</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  {t(
-                    'The unit of the top-up price. ZarinPal always bills in Rial, so amounts in Toman are multiplied by ten.'
-                  )}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+        <div className='grid gap-1.5'>
+          <Label htmlFor='zarinpal-min-topup'>
+            {t('Minimum top-up amount')}
+          </Label>
+          <Input
+            id='zarinpal-min-topup'
+            type='number'
+            min={1}
+            value={
+              Number.isFinite(values.ZarinpalMinTopUp)
+                ? values.ZarinpalMinTopUp
+                : ''
+            }
+            onChange={(event) => {
+              const next = event.target.valueAsNumber
+              if (Number.isFinite(next)) {
+                onValueChange('ZarinpalMinTopUp', next)
+              }
+            }}
           />
-
-          <FormField
-            control={form.control}
-            name='min_topup'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('Minimum top-up amount')}</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    min={1}
-                    {...safeNumberFieldProps(field)}
-                  />
-                </FormControl>
-                <FormDescription>
-                  {t(
-                    'Smallest recharge amount accepted by this gateway, in the unit used by the wallet form.'
-                  )}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
+          <p className='text-muted-foreground text-xs'>
+            {t(
+              'Smallest recharge amount accepted by this gateway, in the unit used by the wallet form.'
             )}
-          />
-        </SettingsForm>
-      </Form>
-    </SettingsSection>
+          </p>
+        </div>
+      </div>
+    </div>
   )
 }

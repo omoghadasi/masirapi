@@ -352,6 +352,11 @@ export type BillingSettings = {
   // section (saved via /api/option/waffo-pancake/save).
   WaffoPancakeStoreID: string
   WaffoPancakeProductID: string
+  'zarinpal_setting.enabled': boolean
+  'zarinpal_setting.merchant_id': string
+  'zarinpal_setting.sandbox': boolean
+  'zarinpal_setting.amount_unit': string
+  'zarinpal_setting.min_topup': number
   'checkin_setting.enabled': boolean
   'checkin_setting.min_quota': number
   'checkin_setting.max_quota': number

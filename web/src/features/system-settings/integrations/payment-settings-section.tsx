@@ -81,6 +81,11 @@ import {
   WaffoSettingsSection,
   type WaffoSettingsValues,
 } from './waffo-settings-section'
+import {
+  ZARINPAL_OPTION_KEYS,
+  ZarinpalSettingsSection,
+  type ZarinpalSettingsValues,
+} from './zarinpal-settings-section'
 
 function isHttpOriginUrl(value: string) {
   const trimmed = value.trim()
@@ -178,13 +183,24 @@ const paymentSchema = z.object({
   WaffoPancakeMerchantID: z.string(),
   WaffoPancakePrivateKey: z.string(),
   WaffoPancakeReturnURL: z.string(),
+  // ZarinPal (zarinpal_setting.* options)
+  ZarinpalEnabled: z.boolean(),
+  ZarinpalMerchantID: z.string(),
+  ZarinpalSandbox: z.boolean(),
+  ZarinpalAmountUnit: z.string(),
+  ZarinpalMinTopUp: z.coerce
+    .number()
+    .int('Value must be at least 1')
+    .min(1, 'Value must be at least 1'),
 })
 
 type PaymentFormValues = z.infer<typeof paymentSchema>
 type WaffoFormFieldValues = Omit<WaffoSettingsValues, 'WaffoPayMethods'>
 type PaymentBaseFormValues = Omit<
   PaymentFormValues,
-  keyof WaffoFormFieldValues | keyof WaffoPancakeSettingsValues
+  | keyof WaffoFormFieldValues
+  | keyof WaffoPancakeSettingsValues
+  | keyof ZarinpalSettingsValues
 >
 
 const CURRENT_COMPLIANCE_TERMS_VERSION = 'v1'
@@ -201,6 +217,7 @@ type PaymentSettingsSectionProps = {
   defaultValues: PaymentBaseFormValues
   waffoDefaultValues: WaffoSettingsValues
   waffoPancakeDefaultValues: WaffoPancakeSettingsValues
+  zarinpalDefaultValues: ZarinpalSettingsValues
   waffoPancakeProvisionedStoreID?: string
   waffoPancakeProvisionedProductID?: string
   complianceDefaults: PaymentComplianceDefaults
@@ -219,6 +236,7 @@ export function PaymentSettingsSection({
   defaultValues,
   waffoDefaultValues,
   waffoPancakeDefaultValues,
+  zarinpalDefaultValues,
   waffoPancakeProvisionedStoreID,
   waffoPancakeProvisionedProductID,
   complianceDefaults,
@@ -231,8 +249,14 @@ export function PaymentSettingsSection({
       ...defaultValues,
       ...waffoDefaultValues,
       ...waffoPancakeDefaultValues,
+      ...zarinpalDefaultValues,
     }),
-    [defaultValues, waffoDefaultValues, waffoPancakeDefaultValues]
+    [
+      defaultValues,
+      waffoDefaultValues,
+      waffoPancakeDefaultValues,
+      zarinpalDefaultValues,
+    ]
   )
   const initialRef = React.useRef(initialFormValues)
   const defaultsSignature = React.useMemo(
@@ -406,6 +430,19 @@ export function PaymentSettingsSection({
     [setPaymentValue]
   )
 
+  const setZarinpalValue = React.useCallback(
+    <K extends keyof ZarinpalSettingsValues>(
+      key: K,
+      value: ZarinpalSettingsValues[K]
+    ) => {
+      setPaymentValue(
+        key as keyof PaymentFormValues,
+        value as PaymentFormValues[keyof PaymentFormValues]
+      )
+    },
+    [setPaymentValue]
+  )
+
   React.useEffect(() => {
     const parsedDefaults = JSON.parse(defaultsSignature) as PaymentFormValues
     initialRef.current = parsedDefaults
@@ -459,6 +496,11 @@ export function PaymentSettingsSection({
       WaffoPancakeReturnURL: removeTrailingSlash(
         values.WaffoPancakeReturnURL.trim()
       ),
+      ZarinpalEnabled: values.ZarinpalEnabled,
+      ZarinpalMerchantID: values.ZarinpalMerchantID.trim(),
+      ZarinpalSandbox: values.ZarinpalSandbox,
+      ZarinpalAmountUnit: values.ZarinpalAmountUnit,
+      ZarinpalMinTopUp: values.ZarinpalMinTopUp,
     }
 
     const initial = {
@@ -506,9 +548,20 @@ export function PaymentSettingsSection({
       WaffoPancakeReturnURL: removeTrailingSlash(
         initialRef.current.WaffoPancakeReturnURL.trim()
       ),
+      ZarinpalEnabled: initialRef.current.ZarinpalEnabled,
+      ZarinpalMerchantID: initialRef.current.ZarinpalMerchantID.trim(),
+      ZarinpalSandbox: initialRef.current.ZarinpalSandbox,
+      ZarinpalAmountUnit: initialRef.current.ZarinpalAmountUnit,
+      ZarinpalMinTopUp: initialRef.current.ZarinpalMinTopUp,
     }
 
     const updates: Array<{ key: string; value: string | number | boolean }> = []
+
+    // Empty merchant ID would brick the gateway while "enabled" claims it is on.
+    if (sanitized.ZarinpalEnabled && !sanitized.ZarinpalMerchantID) {
+      toast.error(t('Merchant ID is required'))
+      return
+    }
 
     if (sanitized.PayAddress !== initial.PayAddress) {
       updates.push({ key: 'PayAddress', value: sanitized.PayAddress })
@@ -703,6 +756,14 @@ export function PaymentSettingsSection({
       updates.push({ key: 'WaffoPayMethods', value: sanitized.WaffoPayMethods })
     }
 
+    // ponytail: 5 keys, generic dotted-option API — no bulk endpoint needed
+    for (const [field, optionKey] of Object.entries(ZARINPAL_OPTION_KEYS)) {
+      const key = field as keyof ZarinpalSettingsValues
+      if (sanitized[key] !== initial[key]) {
+        updates.push({ key: optionKey, value: sanitized[key] })
+      }
+    }
+
     const hasWaffoPancakeChanges =
       sanitized.WaffoPancakeMerchantID !== initial.WaffoPancakeMerchantID ||
       sanitized.WaffoPancakePrivateKey.length > 0 ||
@@ -795,6 +856,13 @@ export function PaymentSettingsSection({
     WaffoReturnUrl: currentFormValues.WaffoReturnUrl,
     WaffoPayMethods: JSON.stringify(waffoPayMethods),
   }
+  const zarinpalValues: ZarinpalSettingsValues = {
+    ZarinpalEnabled: currentFormValues.ZarinpalEnabled,
+    ZarinpalMerchantID: currentFormValues.ZarinpalMerchantID,
+    ZarinpalSandbox: currentFormValues.ZarinpalSandbox,
+    ZarinpalAmountUnit: currentFormValues.ZarinpalAmountUnit,
+    ZarinpalMinTopUp: currentFormValues.ZarinpalMinTopUp,
+  }
   const waffoPancakeValues: WaffoPancakeSettingsValues = {
     WaffoPancakeMerchantID: currentFormValues.WaffoPancakeMerchantID,
     WaffoPancakePrivateKey: currentFormValues.WaffoPancakePrivateKey,
@@ -882,13 +950,14 @@ export function PaymentSettingsSection({
           />
           <Tabs defaultValue='general' className='min-w-0'>
             <div className='overflow-x-auto pb-1'>
-              <TabsList className='grid min-w-[44rem] grid-cols-6'>
+              <TabsList className='grid min-w-[48rem] grid-cols-7'>
                 <TabsTrigger value='general'>{t('General')}</TabsTrigger>
                 <TabsTrigger value='epay'>Epay</TabsTrigger>
                 <TabsTrigger value='stripe'>{t('Stripe')}</TabsTrigger>
                 <TabsTrigger value='creem'>Creem</TabsTrigger>
                 <TabsTrigger value='waffo-pancake'>Waffo Pancake</TabsTrigger>
                 <TabsTrigger value='waffo'>Waffo</TabsTrigger>
+                <TabsTrigger value='zarinpal'>ZarinPal</TabsTrigger>
               </TabsList>
             </div>
 
@@ -1629,6 +1698,16 @@ export function PaymentSettingsSection({
                 onValueChange={setWaffoValue}
                 payMethods={waffoPayMethods}
                 onPayMethodsChange={setWaffoPayMethods}
+              />
+            </TabsContent>
+
+            <TabsContent
+              value='zarinpal'
+              className={paymentTabContentClassName}
+            >
+              <ZarinpalSettingsSection
+                values={zarinpalValues}
+                onValueChange={setZarinpalValue}
               />
             </TabsContent>
           </Tabs>
