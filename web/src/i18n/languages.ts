@@ -17,15 +17,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 export const INTERFACE_LANGUAGE_OPTIONS = [
-  { code: 'zhCN', label: '简体中文' },
-  { code: 'en', label: 'English' },
-  { code: 'fr', label: 'Français' },
-  { code: 'ru', label: 'Русский' },
-  { code: 'ja', label: '日本語' },
-  { code: 'vi', label: 'Tiếng Việt' },
-  { code: 'zhTW', label: '繁體中文' },
-  { code: 'fa', label: 'فارسی', dir: 'rtl' },
-] as const
+  { code: "en", label: "English" },
+  { code: "fa", label: "فارسی", dir: "rtl" },
+] as const;
 
 /**
  * Interface languages whose locale file may be incomplete. A key missing from
@@ -33,55 +27,55 @@ export const INTERFACE_LANGUAGE_OPTIONS = [
  * `fallbackLng`), and `i18n:sync` does not fill the gaps with English text.
  * All other interface languages stay complete.
  */
-export const PARTIAL_INTERFACE_LANGUAGES = ['fa'] as const
+export const PARTIAL_INTERFACE_LANGUAGES = ["fa"] as const;
 
 /**
  * Intl locale used for Persian. Plain `fa` keeps the Intl default for Persian,
  * which renders Persian digits (۱۲۳). Change it to `fa-u-nu-latn` to render
  * Latin digits (123) everywhere numbers and dates are formatted.
  */
-export const PERSIAN_INTL_LOCALE = 'fa'
+export const PERSIAN_INTL_LOCALE = "fa";
 
 export type InterfaceLanguageCode =
-  (typeof INTERFACE_LANGUAGE_OPTIONS)[number]['code']
+  (typeof INTERFACE_LANGUAGE_OPTIONS)[number]["code"];
 
-export type TextDirection = 'ltr' | 'rtl'
+export type TextDirection = "ltr" | "rtl";
 
 /**
  * Text direction of an interface language. Languages without an explicit
  * `dir` in `INTERFACE_LANGUAGE_OPTIONS` are left-to-right.
  */
 export function getInterfaceLanguageDirection(
-  value?: string | null
+  value?: string | null,
 ): TextDirection {
-  const code = normalizeInterfaceLanguage(value)
+  const code = normalizeInterfaceLanguage(value);
   const option: { code: string; dir?: TextDirection } | undefined =
-    INTERFACE_LANGUAGE_OPTIONS.find((lang) => lang.code === code)
-  return option?.dir ?? 'ltr'
+    INTERFACE_LANGUAGE_OPTIONS.find((lang) => lang.code === code);
+  return option?.dir ?? "ltr";
 }
 
 export function normalizeInterfaceLanguage(value?: string | null): string {
-  if (!value) return 'en'
+  if (!value) return "en";
 
-  let normalized = value.trim().replaceAll('_', '-').toLowerCase()
+  let normalized = value.trim().replaceAll("_", "-").toLowerCase();
   if (
-    value === 'zh-TW' ||
-    value === 'zh-HK' ||
-    value === 'zh-MO' ||
-    value === 'zhTW'
+    value === "zh-TW" ||
+    value === "zh-HK" ||
+    value === "zh-MO" ||
+    value === "zhTW"
   ) {
-    normalized = 'zhTW'
+    normalized = "zhTW";
   }
-  if (value === 'zh-CN' || value === 'zh-Hans' || value === 'zhCN') {
-    normalized = 'zhCN'
+  if (value === "zh-CN" || value === "zh-Hans" || value === "zhCN") {
+    normalized = "zhCN";
   }
-  if (normalized.startsWith('fa-')) {
-    normalized = 'fa'
+  if (normalized.startsWith("fa-")) {
+    normalized = "fa";
   }
 
   return INTERFACE_LANGUAGE_OPTIONS.some((lang) => lang.code === normalized)
     ? normalized
-    : 'en'
+    : "en";
 }
 
 /**
@@ -95,19 +89,19 @@ export function normalizeInterfaceLanguage(value?: string | null): string {
  * matching still applies (e.g. `fr-FR` -> `fr`, `ja` -> `ja`).
  */
 export function convertDetectedLanguage(value: string): string {
-  const lower = value.trim().replaceAll('_', '-').toLowerCase()
-  if (lower === 'fa' || lower.startsWith('fa-')) return 'fa'
-  if (!lower.startsWith('zh')) return value
+  const lower = value.trim().replaceAll("_", "-").toLowerCase();
+  if (lower === "fa" || lower.startsWith("fa-")) return "fa";
+  if (!lower.startsWith("zh")) return value;
   if (
-    lower === 'zhtw' ||
-    lower === 'zh-tw' ||
-    lower === 'zh-hk' ||
-    lower === 'zh-mo' ||
-    lower.startsWith('zh-hant')
+    lower === "zhtw" ||
+    lower === "zh-tw" ||
+    lower === "zh-hk" ||
+    lower === "zh-mo" ||
+    lower.startsWith("zh-hant")
   ) {
-    return 'zhTW'
+    return "zhTW";
   }
-  return 'zhCN'
+  return "zhCN";
 }
 
 /**
@@ -120,9 +114,9 @@ export function convertDetectedLanguage(value: string): string {
 export function formatValueChange(
   from: string,
   to: string,
-  language?: string | null
+  language?: string | null,
 ): string {
-  return formatValueChain([from, to], language)
+  return formatValueChain([from, to], language);
 }
 
 /**
@@ -133,12 +127,12 @@ export function formatValueChange(
  */
 export function formatValueChain(
   values: readonly string[],
-  language?: string | null
+  language?: string | null,
 ): string {
-  if (getInterfaceLanguageDirection(language) === 'ltr') {
-    return values.join(' → ')
+  if (getInterfaceLanguageDirection(language) === "ltr") {
+    return values.join(" → ");
   }
-  return values.map((value) => `\u2068${value}\u2069`).join(' ← ')
+  return values.map((value) => `\u2068${value}\u2069`).join(" ← ");
 }
 
 /**
@@ -151,21 +145,21 @@ export function formatValueChain(
  * to `undefined`, which makes `Intl` use the runtime default locale.
  */
 export function toIntlLocale(value?: string | null): string | undefined {
-  if (!value) return undefined
+  if (!value) return undefined;
   switch (value) {
-    case 'zhCN':
-      return 'zh-CN'
-    case 'zhTW':
-      return 'zh-TW'
-    case 'fa':
-      return PERSIAN_INTL_LOCALE
+    case "zhCN":
+      return "zh-CN";
+    case "zhTW":
+      return "zh-TW";
+    case "fa":
+      return PERSIAN_INTL_LOCALE;
     default:
-      break
+      break;
   }
   try {
-    return Intl.getCanonicalLocales(value)[0]
+    return Intl.getCanonicalLocales(value)[0];
   } catch {
-    return undefined
+    return undefined;
   }
 }
 
@@ -174,10 +168,10 @@ export function toIntlLocale(value?: string | null): string | undefined {
  * shown in Persian use the Solar Hijri calendar; see `formatDisplayDate`.
  */
 export function isPersianIntlLocale(locale?: string | null): boolean {
-  if (!locale) return false
+  if (!locale) return false;
   try {
-    return new Intl.Locale(locale).language === 'fa'
+    return new Intl.Locale(locale).language === "fa";
   } catch {
-    return false
+    return false;
   }
 }
