@@ -83,23 +83,18 @@ describe('getInterfaceLanguageDirection', () => {
 })
 
 describe('partial Persian locale', () => {
-  it('falls back to English per key for keys missing from fa.json', async () => {
+  it('falls back to English per key for keys the Persian file lacks', async () => {
+    const translation: Record<string, string> = { ...fa.translation }
+    delete translation['Sign in']
     const instance = i18next.createInstance()
     await instance.init({
       lng: 'fa',
       fallbackLng: 'en',
       nsSeparator: false,
-      resources: { en, fa },
+      resources: { en, fa: { translation } },
     })
-    const faKeys = new Set(Object.keys(fa.translation))
-    const missingKey = Object.keys(en.translation).find(
-      (key) => !faKeys.has(key) && !key.includes('{{')
-    )
 
-    expect(missingKey).toBeDefined()
-    expect(instance.t(missingKey as string)).toBe(
-      en.translation[missingKey as keyof typeof en.translation]
-    )
-    expect(instance.t('Sign in')).toBe(fa.translation['Sign in'])
+    expect(instance.t('Sign in')).toBe(en.translation['Sign in'])
+    expect(instance.t('Dashboard')).toBe(fa.translation['Dashboard'])
   })
 })
