@@ -28,7 +28,12 @@ function Switch({
   size?: 'sm' | 'default'
 }) {
   return (
+    // The thumb travels with a physical `translate-x`, so the track keeps its
+    // own left-to-right base direction: on a right-to-left page the flex start
+    // would otherwise sit on the right edge and the checked thumb would leave
+    // the pill. Switches are not mirrored for right-to-left.
     <SwitchPrimitive.Root
+      dir='ltr'
       data-slot='switch'
       data-size={size}
       className={cn(
