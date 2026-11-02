@@ -10,6 +10,8 @@ RUN DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$(cat /build/VERSION) bu
 FROM golang:1.26.10-alpine@sha256:9ce231b28998b32e116927c61aa5c406183061d4f3f2d61b292c88e7f6bdf7ca AS builder2
 # ponytail: proxy.golang.org gives 403 from Docker VM (GFW SNI filter); goproxy.cn works.
 ENV GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct
+# goproxy.cn drops long HTTP/2 streams (GOAWAY) mid-download; HTTP/1.1 survives.
+ENV GODEBUG=http2client=0
 ENV GO111MODULE=on CGO_ENABLED=0 GOWORK=off
 
 ARG TARGETOS
@@ -28,7 +30,10 @@ RUN go mod download
 
 COPY . .
 COPY --from=builder /build/web/dist ./web/dist
-RUN go build -pgo="$(go list -m -f '{{.Dir}}' github.com/Calcium-Ion/moejs)/default.pgo" -ldflags "-s -w -X 'github.com/QuantumNous/new-api/common.Version=$(cat VERSION)'" -o new-api
+# cmd/netarz-rates is the FX rate sync helper: its own binary, same image, run by
+# the docker-compose service "netarz-rates" - not by the API process.
+RUN go build -pgo="$(go list -m -f '{{.Dir}}' github.com/Calcium-Ion/moejs)/default.pgo" -ldflags "-s -w -X 'github.com/QuantumNous/new-api/common.Version=$(cat VERSION)'" -o new-api \
+ && go build -trimpath -ldflags "-s -w" -o netarz-rates ./cmd/netarz-rates
 
 FROM debian:bookworm-slim@sha256:f06537653ac770703bc45b4b113475bd402f451e85223f0f2837acbf89ab020a
 
@@ -38,6 +43,7 @@ RUN apt-get update \
     && update-ca-certificates
 
 COPY --from=builder2 /build/new-api /
+COPY --from=builder2 /build/netarz-rates /
 COPY LICENSE NOTICE THIRD-PARTY-LICENSES.md /licenses/
 EXPOSE 3000
 WORKDIR /data

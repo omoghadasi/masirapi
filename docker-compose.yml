@@ -78,6 +78,26 @@ services:
       timeout: 10s
       retries: 3
 
+  # Syncs the Billing & Payment USD/Toman rate options from the netarz.ir FX API
+  # once at start and every 30 min. Reuses the image built by the new-api service
+  # above (same Dockerfile, /netarz-rates binary) - the API process is untouched.
+  netarz-rates:
+    image: new-api:local
+    container_name: netarz-rates
+    restart: always
+    entrypoint: ["/netarz-rates"]
+    environment:
+      - SQL_DSN=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - NETARZ_API_KEY=${NETARZ_API_KEY:-}
+      # Uncomment to point at a mirror or a stub (see netarz.ir docs, "نشانی ویژهٔ ایران").
+      # - NETARZ_FX_URL=https://netarz.ir/api/fx/v1/rates?codes=USD
+      - TZ=Asia/Tehran
+    depends_on:
+      - postgres
+      - new-api
+    networks:
+      - new-api-network
+
   redis:
     image: docker.arvancloud.ir/redis:latest
     container_name: redis
