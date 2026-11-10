@@ -43,6 +43,14 @@ export const THEME_PRESETS = [
     swatches: ['oklch(0.15 0 0)', 'oklch(0.99 0 0)'],
   },
   {
+    // shadcn/ui neutral palette: an achromatic black-and-white ramp for
+    // surfaces, borders, buttons, and sidebar. Status and chart colors stay
+    // colored for legibility.
+    value: 'monochrome',
+    name: 'Monochrome',
+    swatches: ['oklch(0.205 0 0)', 'oklch(0.922 0 0)'],
+  },
+  {
     value: 'underground',
     name: 'Underground',
     swatches: ['oklch(0.5315 0.0694 156.19)', 'oklch(0.5748 0.0862 336.52)'],
