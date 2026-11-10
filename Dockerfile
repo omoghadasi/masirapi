@@ -30,10 +30,11 @@ RUN go mod download
 
 COPY . .
 COPY --from=builder /build/web/dist ./web/dist
-# cmd/netarz-rates is the FX rate sync helper: its own binary, same image, run by
-# the docker-compose service "netarz-rates" - not by the API process.
+# cmd/netarz-rates and cmd/wallex-rates are the FX rate sync helpers: one binary
+# each, same image, run by their docker-compose services - not by the API process.
 RUN go build -pgo="$(go list -m -f '{{.Dir}}' github.com/Calcium-Ion/moejs)/default.pgo" -ldflags "-s -w -X 'github.com/QuantumNous/new-api/common.Version=$(cat VERSION)'" -o new-api \
- && go build -trimpath -ldflags "-s -w" -o netarz-rates ./cmd/netarz-rates
+ && go build -trimpath -ldflags "-s -w" -o netarz-rates ./cmd/netarz-rates \
+ && go build -trimpath -ldflags "-s -w" -o wallex-rates ./cmd/wallex-rates
 
 FROM debian:bookworm-slim@sha256:f06537653ac770703bc45b4b113475bd402f451e85223f0f2837acbf89ab020a
 
@@ -44,6 +45,7 @@ RUN apt-get update \
 
 COPY --from=builder2 /build/new-api /
 COPY --from=builder2 /build/netarz-rates /
+COPY --from=builder2 /build/wallex-rates /
 COPY LICENSE NOTICE THIRD-PARTY-LICENSES.md /licenses/
 EXPOSE 3000
 WORKDIR /data
