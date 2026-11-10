@@ -42,6 +42,14 @@ func main() {
 	if marketsURL == "" {
 		marketsURL = defaultMarketsURL
 	}
+	markupPercent := 0.0
+	if raw := os.Getenv("WALLEX_RATE_MARKUP_PERCENT"); raw != "" {
+		value, err := strconv.ParseFloat(raw, 64)
+		if err != nil || value <= -100 {
+			log.Fatalf("WALLEX_RATE_MARKUP_PERCENT must be a number greater than -100: %q", raw)
+		}
+		markupPercent = value
+	}
 	dsn := os.Getenv("SQL_DSN")
 	if dsn == "" {
 		log.Fatal("SQL_DSN is not set")
@@ -53,17 +61,21 @@ func main() {
 	defer db.Close()
 
 	for {
-		if err := sync(db, marketsURL); err != nil {
+		if err := sync(db, marketsURL, markupPercent); err != nil {
 			log.Printf("wallex: %v", err)
 		}
 		time.Sleep(interval)
 	}
 }
 
-func sync(db *sql.DB, marketsURL string) error {
+func sync(db *sql.DB, marketsURL string, markupPercent float64) error {
 	rate, err := fetchRate(marketsURL)
 	if err != nil {
 		return err
+	}
+	rate *= 1 + markupPercent/100
+	if rate <= minRate || rate >= maxRate {
+		return fmt.Errorf("rate %v after %g%% markup is outside the sanity band, refusing to write", rate, markupPercent)
 	}
 	value := strconv.FormatFloat(rate, 'f', -1, 64)
 	for _, key := range rateKeys {
@@ -73,7 +85,7 @@ func sync(db *sql.DB, marketsURL string) error {
 			return fmt.Errorf("write %s: %w", key, err)
 		}
 	}
-	log.Printf("USDT/Toman = %s -> %v", value, rateKeys)
+	log.Printf("USDT/Toman = %s (markup %g%%) -> %v", value, markupPercent, rateKeys)
 	return nil
 }
 

@@ -88,6 +88,8 @@ services:
     entrypoint: ["/wallex-rates"]
     environment:
       - SQL_DSN=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      # Percent added to the fetched rate before it is written (2 = +2%).
+      - WALLEX_RATE_MARKUP_PERCENT=${WALLEX_RATE_MARKUP_PERCENT:-0}
       # Uncomment to point at a mirror or a stub.
       # - WALLEX_MARKETS_URL=https://api.wallex.ir/v1/markets
       - TZ=Asia/Tehran
