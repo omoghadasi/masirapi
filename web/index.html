@@ -52,5 +52,20 @@
 
   <body>
     <div id="root" translate="no" class="notranslate"></div>
+    <!-- Apply the saved color preset before first paint so the default
+         monochrome palette is visible immediately. Keep in sync with
+         THEME_STORAGE_KEYS.preset and DEFAULT_THEME_CUSTOMIZATION. -->
+    <script>
+      ;(function () {
+        var preset = 'monochrome'
+        try {
+          preset =
+            localStorage.getItem('newapi:theme:v1:preset') || 'monochrome'
+        } catch (e) {}
+        if (preset !== 'default') {
+          document.body.setAttribute('data-theme-preset', preset)
+        }
+      })()
+    </script>
   </body>
 </html>

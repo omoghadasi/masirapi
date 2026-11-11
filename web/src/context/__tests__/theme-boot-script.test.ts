@@ -30,9 +30,17 @@ const html = readFileSync(
   'utf8'
 )
 const bootScript = html.match(/<script>([\s\S]*?)<\/script>/)?.[1] ?? ''
+const presetBootScript =
+  [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+    .map((match) => match[1])
+    .find((script) => script.includes('data-theme-preset')) ?? ''
 
 function runBootScript() {
   new Function(bootScript)()
+}
+
+function runPresetBootScript() {
+  new Function(presetBootScript)()
 }
 
 function mockSystemDarkMode(dark: boolean) {
@@ -53,6 +61,7 @@ afterEach(() => {
   vi.restoreAllMocks()
   localStorage.clear()
   document.documentElement.classList.remove('light', 'dark')
+  document.body.removeAttribute('data-theme-preset')
 })
 
 describe('index.html theme boot script', () => {
@@ -91,5 +100,19 @@ describe('index.html theme boot script', () => {
     runBootScript()
 
     expect(document.documentElement).toHaveClass('light')
+  })
+
+  it('applies the default monochrome preset before React mounts', () => {
+    runPresetBootScript()
+
+    expect(document.body).toHaveAttribute('data-theme-preset', 'monochrome')
+  })
+
+  it('applies a saved color preset before React mounts', () => {
+    localStorage.setItem(THEME_STORAGE_KEYS.preset, 'rose-garden')
+
+    runPresetBootScript()
+
+    expect(document.body).toHaveAttribute('data-theme-preset', 'rose-garden')
   })
 })

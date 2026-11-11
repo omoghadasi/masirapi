@@ -126,12 +126,11 @@ export function ThemeCustomizationProvider(props: {
   )
 
   // Mirror state to the <body> via data-* attributes so theme-presets.css can
-  // override CSS variables at the right cascade layer.
+  // override CSS variables at the right cascade layer. The `default` preset is
+  // the only palette defined by :root, so it needs no attribute; every other
+  // preset (including the default customization, monochrome) must apply one.
   useEffect(() => {
-    applyAttribute(
-      'data-theme-preset',
-      preset === DEFAULT_THEME_CUSTOMIZATION.preset ? null : preset
-    )
+    applyAttribute('data-theme-preset', preset === 'default' ? null : preset)
   }, [preset])
 
   // Resolve Auto into the preset font or the browser's sans-serif while

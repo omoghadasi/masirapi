@@ -120,7 +120,7 @@ export type ThemeCustomization = {
 }
 
 export const DEFAULT_THEME_CUSTOMIZATION: ThemeCustomization = {
-  preset: 'default',
+  preset: 'monochrome',
   font: 'default',
   radius: 'default',
   scale: 'default',

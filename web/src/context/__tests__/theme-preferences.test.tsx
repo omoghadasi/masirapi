@@ -55,6 +55,12 @@ function ThemeControls() {
       >
         Anthropic preset
       </button>
+      <button
+        type='button'
+        onClick={() => customization.setPreset('monochrome')}
+      >
+        Monochrome preset
+      </button>
       <button type='button' onClick={() => customization.setPreset('default')}>
         Default preset
       </button>
@@ -125,7 +131,7 @@ describe('theme preference persistence', () => {
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
     expect(document.documentElement).toHaveClass('light')
-    expect(document.body).not.toHaveAttribute('data-theme-preset')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'monochrome')
     expect(document.body).toHaveAttribute('data-theme-font', 'system')
     expect(document.body).not.toHaveAttribute('data-theme-radius')
     expect(document.body).not.toHaveAttribute('data-theme-scale')
@@ -171,7 +177,7 @@ describe('theme preference persistence', () => {
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
     expect(document.documentElement).toHaveClass('light')
-    expect(document.body).not.toHaveAttribute('data-theme-preset')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'monochrome')
     expect(document.body).toHaveAttribute('data-theme-font', 'system')
     expect(document.body).not.toHaveAttribute('data-theme-radius')
     expect(document.body).not.toHaveAttribute('data-theme-scale')
@@ -193,7 +199,7 @@ describe('theme preference persistence', () => {
       render(<ThemeFixture />)
 
       expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
-      expect(document.body).not.toHaveAttribute('data-theme-preset')
+      expect(document.body).toHaveAttribute('data-theme-preset', 'monochrome')
       expect(document.body).toHaveAttribute('data-theme-font', 'system')
       expect(document.body).not.toHaveAttribute('data-theme-radius')
       expect(document.body).not.toHaveAttribute('data-theme-scale')
@@ -209,7 +215,7 @@ describe('theme preference persistence', () => {
     render(<ThemeFixture />)
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
-    expect(document.body).not.toHaveAttribute('data-theme-preset')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'monochrome')
   })
 
   it('still applies and resets preferences when storage writes fail', async () => {
@@ -230,7 +236,25 @@ describe('theme preference persistence', () => {
     await user.click(screen.getByRole('button', { name: 'Reset' }))
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
-    expect(document.body).not.toHaveAttribute('data-theme-preset')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'monochrome')
+  })
+
+  it('selects monochrome and clears the stored preset because it is the default', async () => {
+    localStorage.setItem('newapi:theme:v1:preset', 'rose-garden')
+    const user = userEvent.setup()
+    const first = render(<ThemeFixture />)
+
+    expect(document.body).toHaveAttribute('data-theme-preset', 'rose-garden')
+
+    await user.click(screen.getByRole('button', { name: 'Monochrome preset' }))
+
+    expect(document.body).toHaveAttribute('data-theme-preset', 'monochrome')
+    expect(localStorage.getItem('newapi:theme:v1:preset')).toBeNull()
+
+    first.unmount()
+    render(<ThemeFixture />)
+
+    expect(document.body).toHaveAttribute('data-theme-preset', 'monochrome')
   })
 
   it('preserves saved theme preferences during frontend cache initialization', () => {

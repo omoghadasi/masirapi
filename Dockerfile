@@ -1,6 +1,8 @@
 FROM oven/bun:1.4.4@sha256:1d22548f177f4ff38e0c15baa3c2c46c6c2060ba2d1bc573bb4720b407548f1d AS builder
 
 WORKDIR /build/web
+# The Liara npm mirror (Iran) is first so builds on Iranian networks download fast.
+ENV BUN_CONFIG_REGISTRY=https://mirror-npm.pkg.shecan.ir/
 COPY web/package.json web/bun.lock ./
 RUN bun install --frozen-lockfile
 COPY ./web ./
@@ -9,7 +11,9 @@ RUN DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION=$(cat /build/VERSION) bu
 
 FROM golang:1.26.10-alpine@sha256:9ce231b28998b32e116927c61aa5c406183061d4f3f2d61b292c88e7f6bdf7ca AS builder2
 # ponytail: proxy.golang.org gives 403 from Docker VM (GFW SNI filter); goproxy.cn works.
-ENV GOPROXY=https://goproxy.cn,https://proxy.golang.org,direct
+# The Liara mirror (Iran) is first so builds on Iranian networks download fast;
+# the other proxies remain as fallbacks.
+ENV GOPROXY=https://mirror-go.pkg.shecan.ir,https://goproxy.cn,https://proxy.golang.org,direct
 # goproxy.cn drops long HTTP/2 streams (GOAWAY) mid-download; HTTP/1.1 survives.
 ENV GODEBUG=http2client=0
 ENV GO111MODULE=on CGO_ENABLED=0 GOWORK=off
