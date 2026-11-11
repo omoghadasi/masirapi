@@ -48,6 +48,37 @@ const NEW_API_FOOTER_ATTRIBUTION_KEY = [
   'projectAttributionSuffix',
 ].join('.')
 
+const ENAMAD_SEAL = {
+  href: 'https://trustseal.enamad.ir/?id=8450885&Code=mzh8m4XChho5LEyKeaOpIaDeG6a9OBAg',
+  image:
+    'https://trustseal.enamad.ir/logo.aspx?id=8450885&Code=mzh8m4XChho5LEyKeaOpIaDeG6a9OBAg',
+  code: 'mzh8m4XChho5LEyKeaOpIaDeG6a9OBAg',
+} as const
+
+function EnamadSeal(props: { className?: string }) {
+  const { t } = useTranslation()
+  const label = t('Enamad Trust Seal')
+
+  return (
+    <a
+      href={ENAMAD_SEAL.href}
+      target='_blank'
+      rel='noopener'
+      referrerPolicy='origin'
+      aria-label={label}
+      className={cn('inline-block shrink-0', props.className)}
+    >
+      <img
+        src={ENAMAD_SEAL.image}
+        alt={label}
+        referrerPolicy='origin'
+        className='h-20 w-auto cursor-pointer object-contain'
+        {...{ code: ENAMAD_SEAL.code }}
+      />
+    </a>
+  )
+}
+
 function FooterLinkItem(props: { link: FooterLink }) {
   const { t } = useTranslation()
   const isExternal = props.link.href.startsWith('http')
@@ -232,10 +263,13 @@ export function Footer(props: FooterProps) {
       >
         <div className='mx-auto w-full max-w-6xl px-6 py-5'>
           <div className='bg-muted/20 border-border/50 flex flex-col items-center justify-between gap-4 rounded-2xl border px-4 py-4 backdrop-blur-sm sm:flex-row sm:px-5'>
-            <div
-              className='custom-footer text-muted-foreground min-w-0 text-center text-sm sm:text-left'
-              dangerouslySetInnerHTML={{ __html: footerHtml }}
-            />
+            <div className='min-w-0 text-center sm:text-left'>
+              <div
+                className='custom-footer text-muted-foreground text-sm'
+                dangerouslySetInnerHTML={{ __html: footerHtml }}
+              />
+              <EnamadSeal className='mt-3' />
+            </div>
             <div className='border-border/60 text-muted-foreground/45 flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t pt-4 text-xs sm:w-auto sm:justify-end sm:border-t-0 sm:border-l sm:pt-0 sm:pl-5'>
               <LegalLinks />
               <ProjectAttribution currentYear={currentYear} inline />
@@ -267,6 +301,7 @@ export function Footer(props: FooterProps) {
             <p className='text-muted-foreground/60 mt-3 max-w-[200px] text-xs leading-relaxed'>
               {t('Powerful API Management Platform')}
             </p>
+            <EnamadSeal className='mt-4' />
           </div>
 
           {/* Links columns */}
