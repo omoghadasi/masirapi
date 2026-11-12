@@ -1242,6 +1242,30 @@
     color: var(--msr-faint);
     font-size: 0.76rem;
   }
+  .msr-footer-base {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px 24px;
+    margin-top: 14px;
+  }
+  .msr-footer-base small {
+    margin-top: 0;
+  }
+  .msr-enamad {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .msr-enamad img {
+    display: block;
+    width: auto;
+    height: 68px;
+    transition: transform 0.2s ease;
+  }
+  .msr-enamad:hover img {
+    transform: translateY(-2px);
+  }
 
   /* ---------- scroll reveals (progressive enhancement) ---------- */
   @supports (animation-timeline: view()) {
@@ -2288,7 +2312,22 @@ console.<span class="tk-f">log</span>(resp.choices[<span class="tk-n">0</span>].
           <a href="/sign-up">ثبت‌نام</a>
         </nav>
       </div>
-      <small>© ۱۴۰۵ Masirapi — یک کلید، همهٔ مدل‌ها.</small>
+      <div class="msr-footer-base">
+        <small>© ۱۴۰۵ Masirapi — یک کلید، همهٔ مدل‌ها.</small>
+        <a
+          class="msr-enamad"
+          referrerpolicy="origin"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://trustseal.enamad.ir/?id=8450885&Code=mzh8m4XChho5LEyKeaOpIaDeG6a9OBAg"
+          aria-label="نماد اعتماد الکترونیکی"
+          ><img
+            referrerpolicy="origin"
+            src="https://trustseal.enamad.ir/logo.aspx?id=8450885&Code=mzh8m4XChho5LEyKeaOpIaDeG6a9OBAg"
+            alt="نماد اعتماد الکترونیکی"
+            code="mzh8m4XChho5LEyKeaOpIaDeG6a9OBAg"
+        /></a>
+      </div>
     </div>
   </footer>
 </div>
