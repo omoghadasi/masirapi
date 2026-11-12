@@ -301,8 +301,8 @@ export function Footer(props: FooterProps) {
             <p className='text-muted-foreground/60 mt-3 max-w-[200px] text-xs leading-relaxed'>
               {t('Powerful API Management Platform')}
             </p>
-            <EnamadSeal className='mt-4' />
           </div>
+          <EnamadSeal />
 
           {/* Links columns */}
           {isDemoSiteMode && (
