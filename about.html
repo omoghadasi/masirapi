@@ -178,64 +178,11 @@
     padding-inline: clamp(20px, 4vw, 44px);
   }
 
-  /* ---------- reading progress ---------- */
-  .msr-progress {
-    position: sticky;
-    top: var(--app-header-height, 3rem);
-    z-index: 6;
-    height: 3px;
-    background: color-mix(in oklab, var(--msr-text) 7%, transparent);
-  }
-  .msr-progress-bar {
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      var(--msr-cyan),
-      var(--msr-violet),
-      var(--msr-magenta)
-    );
-    transform-origin: right center;
-    transform: scaleX(0);
-  }
-  @supports (animation-timeline: scroll()) {
-    .msr-progress-bar {
-      animation: msr-progress linear both;
-      animation-timeline: scroll();
-    }
-    @keyframes msr-progress {
-      from {
-        transform: scaleX(0);
-      }
-      to {
-        transform: scaleX(1);
-      }
-    }
-  }
-
   /* ---------- masthead ---------- */
   .msr-masthead {
     position: relative;
     padding-top: clamp(84px, 12vh, 120px);
     padding-bottom: clamp(30px, 5vw, 56px);
-  }
-  .msr-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px 18px;
-    color: var(--msr-faint);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    animation: msr-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .msr-meta-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--msr-emerald);
-    box-shadow: 0 0 0 0 color-mix(in oklab, var(--msr-emerald) 50%, transparent);
-    animation: msr-ping 2.4s ease-out infinite;
   }
   @keyframes msr-ping {
     0% {
@@ -250,11 +197,6 @@
       box-shadow: 0 0 0 0
         color-mix(in oklab, var(--msr-emerald) 0%, transparent);
     }
-  }
-  .msr-meta-sep {
-    width: 26px;
-    height: 1px;
-    background: var(--msr-line);
   }
   .msr-display {
     margin-top: 26px;
@@ -375,6 +317,10 @@
     display: grid;
     grid-template-columns: 92px minmax(0, 1fr);
     gap: clamp(18px, 3vw, 40px);
+    width: 100%;
+    max-width: 1080px;
+    margin-inline: auto;
+    padding-inline: clamp(20px, 4vw, 44px);
     padding-block: clamp(48px, 7vw, 84px);
     scroll-margin-top: calc(var(--app-header-height, 3rem) + 24px);
   }
@@ -390,7 +336,7 @@
     border-inline-start: 2px dashed
       color-mix(in oklab, var(--msr-cyan) 32%, transparent);
   }
-  .msr-chapter:last-of-type .msr-spine::after {
+  #journey .msr-spine::after {
     display: none;
   }
   .msr-num {
@@ -441,8 +387,8 @@
   }
   .msr-quote {
     position: relative;
-    margin-top: 30px;
-    padding: 26px 30px 26px 26px;
+    margin-top: 30px !important;
+    padding: 26px 30px 26px 26px !important;
     border-inline-start: 3px solid var(--msr-cyan);
     background: var(--msr-surface);
     border-radius: 0 18px 18px 0;
@@ -700,7 +646,7 @@
   .msr-station::before {
     content: '';
     position: absolute;
-    top: -13px;
+    top: -6px;
     inset-inline-start: 24px;
     width: 12px;
     height: 12px;
@@ -734,6 +680,182 @@
     color: var(--msr-faint);
     font-size: 0.75rem;
     font-weight: 700;
+  }
+
+  /* ---------- paths tried: route map ---------- */
+  .msr-paths {
+    margin-top: 30px;
+    padding: 22px 18px 16px;
+    border: 1px solid var(--msr-line);
+    border-radius: 20px;
+    background: var(--msr-surface);
+  }
+  .msr-paths svg {
+    width: 100%;
+    height: auto;
+    direction: ltr;
+  }
+  .msr-path-fail {
+    fill: none;
+    stroke: color-mix(in oklab, var(--msr-rose) 52%, transparent);
+    stroke-width: 2;
+    stroke-dasharray: 5 8;
+    stroke-linecap: round;
+  }
+  .msr-path-stable {
+    fill: none;
+    stroke: color-mix(in oklab, var(--msr-emerald) 70%, transparent);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .msr-path-stable-flow {
+    fill: none;
+    stroke: var(--msr-cyan-l);
+    stroke-width: 3;
+    stroke-dasharray: 10 16;
+    stroke-linecap: round;
+    animation: msr-march 1.8s linear infinite;
+  }
+  .msr-start-node {
+    fill: var(--msr-bg);
+    stroke: var(--msr-muted);
+    stroke-width: 2;
+  }
+  .msr-deadend-node {
+    fill: var(--msr-bg);
+    stroke: var(--msr-rose);
+    stroke-width: 2;
+  }
+  .msr-deadend-cross {
+    stroke: var(--msr-rose);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+  .msr-stable-node {
+    fill: var(--msr-emerald);
+    stroke: none;
+    animation: msr-node-pulse 2.6s ease-in-out infinite;
+  }
+  .msr-paths-label {
+    fill: var(--msr-muted);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+  }
+  .msr-paths-label-fail {
+    fill: color-mix(in oklab, var(--msr-rose) 82%, var(--msr-text));
+  }
+  .msr-paths-label-stable {
+    fill: var(--msr-emerald);
+    font-weight: 800;
+  }
+  .msr-paths-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--msr-line);
+    color: var(--msr-faint);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .msr-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .msr-legend-swatch {
+    width: 28px;
+    border-top: 3px solid var(--msr-emerald);
+    border-radius: 2px;
+  }
+  .msr-legend-swatch-fail {
+    border-top: 2px dashed var(--msr-rose);
+  }
+
+  /* ---------- dead-end cards ---------- */
+  .msr-deadends {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .msr-deadend {
+    position: relative;
+    padding: 18px 18px 16px;
+    border: 1px solid color-mix(in oklab, var(--msr-rose) 26%, var(--msr-line));
+    border-radius: 16px;
+    background: color-mix(in oklab, var(--msr-rose) 5%, var(--msr-surface));
+    transition:
+      border-color 0.25s,
+      transform 0.25s;
+  }
+  .msr-deadend:hover {
+    border-color: color-mix(in oklab, var(--msr-rose) 48%, var(--msr-line));
+    transform: translateY(-2px);
+  }
+  .msr-deadend-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .msr-deadend-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+    border-radius: 8px;
+    color: var(--msr-rose);
+    background: color-mix(in oklab, var(--msr-rose) 14%, transparent);
+  }
+  .msr-deadend-x svg {
+    width: 15px;
+    height: 15px;
+  }
+  .msr-deadend-title {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: var(--msr-text);
+  }
+  .msr-deadend p {
+    margin-top: 10px;
+    color: var(--msr-muted);
+    font-size: 0.86rem;
+    line-height: 1.95;
+  }
+  .msr-deadend-tag {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 3px 11px;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: var(--msr-rose);
+    background: color-mix(in oklab, var(--msr-rose) 12%, transparent);
+  }
+  .msr-stable-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 30px !important;
+    color: var(--msr-text);
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+  .msr-stable-head::before {
+    content: '';
+    width: 34px;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--msr-emerald), var(--msr-cyan));
+  }
+  .msr-stable-head em {
+    font-style: normal;
+    color: var(--msr-emerald);
   }
 
   /* ---------- values ---------- */
@@ -952,6 +1074,9 @@
     .msr-keyrow {
       grid-template-columns: minmax(0, 1fr) auto;
     }
+    .msr-deadends {
+      grid-template-columns: 1fr;
+    }
     .msr-barrier-index {
       display: none;
     }
@@ -972,9 +1097,6 @@
       opacity: 1 !important;
       transform: none !important;
     }
-    .msr-progress-bar {
-      transform: scaleX(1);
-    }
   }
 </style>
 
@@ -986,31 +1108,18 @@
     <div class="msr-grain"></div>
   </div>
 
-  <div class="msr-progress" aria-hidden="true">
-    <div class="msr-progress-bar"></div>
-  </div>
-
   <!-- masthead -->
   <header class="msr-masthead">
     <div class="msr-wrap">
-      <p class="msr-meta">
-        <span class="msr-meta-dot" aria-hidden="true"></span>
-        دربارهٔ ما
-        <span class="msr-meta-sep" aria-hidden="true"></span>
-        Masirapi
-        <span class="msr-meta-sep" aria-hidden="true"></span>
-        ۱۴۰۵
-      </p>
       <h1 class="msr-display">
-        سدّها را برنداشتیم؛
+        سدها را برنداشتیم؛
         <br />
         <span class="msr-outline">مسیر</span> ساختیم.
       </h1>
       <p class="msr-masthead-lead">
-        Masirapi یک دروازهٔ واحد API است که مدل‌های متنی و تصویری بیش از
+        Masirapi یک دروازهٔ واحد API است؛ مدل‌های متنی و تصویری بیش از
         <strong>۴۰ ارائه‌دهنده</strong> را زیر یک حساب، یک کلید و پرداخت ریالی
-        جمع می‌کند؛ برای تیم‌هایی که نمی‌خواهند برای هر مدل، در یک کشور دیگر
-        حساب باز کنند.
+        جمع می‌کند. دیگر لازم نیست برای هر مدل، در کشوری دیگر حساب باز کنید.
       </p>
       <span class="msr-stamp">ساخته‌شده در ایران</span>
 
@@ -1055,24 +1164,25 @@
     <div class="msr-chapter-body msr-reveal">
       <h2>از یک درد مشترک شروع شد</h2>
       <p class="msr-chapter-lead">
-        Masirapi از یک نیاز داخلی بیرون آمد؛ وقتی فهمیدیم مشکل فقط فنی نیست،
-        بلکه در مسیر رسیدن به سرویس‌هاست.
+        Masirapi از یک نیاز واقعی بیرون آمد، نه یک ایدهٔ انتزاعی. فهمیدیم مشکل
+        فقط فنی نیست؛ خودِ مسیرِ رسیدن به سرویس‌ها سد است.
       </p>
       <div class="msr-story">
         <p>
-          همه‌چیز از یک ناکامی تکراری شروع شد: برای ساختن یک محصول با هوش
-          مصنوعی باید در هر سرویس جدا ثبت‌نام می‌کردیم، برای هر کدام کلید و
-          سهمیه می‌گرفتیم و برای پرداخت دنبال کارت بین‌المللی و دلار می‌رفتیم.
+          برای ساختن یک محصول با هوش مصنوعی باید در هر سرویس جدا ثبت‌نام
+          می‌کردیم؛ برای هر کدام کلید و سهمیه می‌گرفتیم و برای پرداخت دنبال کارت
+          بین‌المللی و دلار می‌دویدیم. هر مدل، یک دنیای جدا با قوانین خودش.
         </p>
         <p>
-          برای تیم‌های ایرانی این مسیر چند سد روی هم است: پرداخت ارزی، تحریم و
-          بسته‌شدن حساب، تفاوت قیمت‌ها و سهمیه‌ها، و نگه‌داری چند پنل جدا برای
-          یک محصول. انرژی تیم صرف زیرساخت می‌شد، نه محصول.
+          برای تیم‌های ایرانی این مسیر چند سد روی‌هم است: پرداخت ارزی، تحریم و
+          بسته‌شدن ناگهانی حساب، قیمت‌ها و سهمیه‌های ناهمگون، و چند پنل جدا برای
+          یک محصول. انرژی تیم صرف سرهم‌کردن زیرساخت می‌شد، نه ساختن محصول.
         </p>
         <p>
-          Masirapi را ساختیم تا این لایه یک‌بار برای همیشه حل شود:
+          تصمیم گرفتیم این لایه را یک‌بار برای همیشه حل کنیم:
           <strong>یک حساب، یک کلید، همهٔ مدل‌ها</strong>؛ با پرداخت ریالی، پنل
-          مدیریت مصرف و پشتیبانی فارسی.
+          مدیریت مصرف و پشتیبانی فارسی. تا تیم‌ها به‌جای جنگیدن با زیرساخت، روی
+          محصولشان تمرکز کنند.
         </p>
       </div>
       <blockquote class="msr-quote">
@@ -1091,7 +1201,7 @@
       <h2>چهار سد، و یک کلید</h2>
       <p class="msr-chapter-lead">
         هر کدام از این موانع به‌تنهایی می‌تواند یک پروژه را متوقف کند. ما هر
-        چهار مورد را در همان نقطهٔ ورود حل کردیم.
+        چهار را در همان نقطهٔ ورود حل کردیم؛ یک‌بار، برای همیشه.
       </p>
       <div class="msr-ledger">
         <div class="msr-barrier">
@@ -1101,8 +1211,8 @@
               >ثبت‌نام، کلید و سهمیهٔ جدا برای هر سرویس</span
             >
             <p>
-              هر ارائه‌دهنده پنل و سیاست قیمت‌گذاری خودش را دارد؛ یک محصول
-              ساده به چند حساب و چند صورتحساب وابسته می‌شود.
+              هر ارائه‌دهنده پنل و قیمت‌گذاری خودش را دارد؛ یک محصول ساده به چند
+              حساب، چند کلید و چند صورتحساب گره می‌خورد.
             </p>
           </div>
           <span class="msr-barrier-x" aria-hidden="true">
@@ -1124,8 +1234,8 @@
               >کارت بین‌المللی و پرداخت دلاری</span
             >
             <p>
-              بسیاری از سرویس‌ها فقط با کارت ارزی شارژ می‌شوند؛ تهیهٔ کارت و
-              پرداخت دلاری برای تیم‌های ایرانی زمان‌بر و پرهزینه است.
+              بیشتر سرویس‌ها فقط با کارت ارزی شارژ می‌شوند؛ تهیهٔ کارت و پرداخت
+              دلاری برای تیم ایرانی زمان‌بر، پرهزینه و پرریسک است.
             </p>
           </div>
           <span class="msr-barrier-x" aria-hidden="true">
@@ -1145,8 +1255,8 @@
           <div>
             <span class="msr-barrier-title">تحریم، بسته‌شدن حساب و VPN</span>
             <p>
-              محدودیت‌های منطقه‌ای می‌تواند دسترسی به مدل را وسط کار قطع کند و
-              تیم را مجبور به راه‌حل‌های شکننده کند.
+              محدودیت منطقه‌ای می‌تواند دسترسی به مدل را وسط کار قطع کند و تیم
+              را به راه‌حل‌های شکننده و موقت وابسته کند.
             </p>
           </div>
           <span class="msr-barrier-x" aria-hidden="true">
@@ -1164,12 +1274,10 @@
         <div class="msr-barrier">
           <span class="msr-barrier-index">۴</span>
           <div>
-            <span class="msr-barrier-title"
-              >پشتیبانی انگلیسی و ساعت دیگر</span
-            >
+            <span class="msr-barrier-title">پشتیبانی انگلیسی و ساعت دیگر</span>
             <p>
-              وقتی مشکلی پیش می‌آید، تیکت انگلیسی و منطقهٔ زمانی متفاوت، رفع
-              مشکل را کند و پرهزینه می‌کند.
+              وقتی مشکلی پیش می‌آید، تیکت انگلیسی و اختلاف ساعت رفع مشکل را کند
+              می‌کند؛ درست وقتی که هر دقیقه مهم است.
             </p>
           </div>
           <span class="msr-barrier-x" aria-hidden="true">
@@ -1201,7 +1309,7 @@
             <strong>یک کلید، همهٔ مدل‌ها</strong>
             <p>
               یک حساب Masirapi، یک کلید سازگار با OpenAI، پرداخت ریالی و
-              پشتیبانی فارسی؛ تغییر مدل فقط تغییر نام مدل در کد است.
+              پشتیبانی فارسی. تغییر مدل، فقط تغییر یک نام در کد است.
             </p>
           </div>
           <span class="msr-keyrow-tag">حل شد</span>
@@ -1219,9 +1327,9 @@
     <div class="msr-chapter-body msr-reveal">
       <h2>یک API، همهٔ مدل‌ها</h2>
       <p class="msr-chapter-lead">
-        Masirapi یک لایهٔ مشترک بین محصول شما و ارائه‌دهندگان هوش مصنوعی است؛
-        همان درخواستی که برای OpenAI می‌نویسید، برای بقیهٔ مدل‌ها هم کار
-        می‌کند.
+        Masirapi یک لایهٔ مشترک میان محصول شما و ارائه‌دهندگان هوش مصنوعی است.
+        همان درخواستی که برای OpenAI می‌نویسید، برای بقیهٔ مدل‌ها هم کار می‌کند؛
+        بدون بازنویسی.
       </p>
       <dl class="msr-spec">
         <div class="msr-spec-row">
@@ -1283,18 +1391,213 @@ client.chat.completions.create(model=<span class="tk-s">"gpt-4o-mini"</span>, me
       <span class="msr-num-label">مسیر</span>
     </div>
     <div class="msr-chapter-body msr-reveal">
-      <h2>از یک نیاز داخلی تا یک سرویس عمومی</h2>
+      <h2>از میان مسیرهای بسیار، یکی پایدار ماند</h2>
       <p class="msr-chapter-lead">
-        چهار ایستگاه؛ از اولین جرقه تا امروز. برای دیدن ادامهٔ مسیر، افقی
-        اسکرول کنید.
+        راه‌های زیادی را امتحان کردیم؛ بیشترشان به بن‌بست خورد. آنچه ماند یک
+        مسیر پایدار بود که امروز Masirapi است. اول بن‌بست‌ها را ببینید، بعد
+        مسیری که جواب داد.
       </p>
-      <div class="msr-route" tabindex="0" aria-label="مسیر شکل‌گیری Masirapi">
+
+      <div class="msr-paths msr-reveal" aria-hidden="true">
+        <svg viewBox="0 0 1000 300" role="presentation">
+          <path class="msr-path-fail" d="M932 150 C 820 120, 690 72, 568 57" />
+          <path
+            class="msr-path-fail"
+            d="M932 150 C 790 148, 560 112, 438 106"
+          />
+          <path
+            class="msr-path-fail"
+            d="M932 150 C 810 178, 650 224, 528 233"
+          />
+          <path
+            class="msr-path-fail"
+            d="M932 150 C 730 208, 480 214, 308 206"
+          />
+          <path
+            class="msr-path-stable"
+            d="M932 150 C 720 138, 420 162, 79 150"
+          />
+          <path
+            class="msr-path-stable-flow"
+            d="M932 150 C 720 138, 420 162, 79 150"
+          />
+          <circle class="msr-start-node" cx="940" cy="150" r="8" />
+          <circle class="msr-deadend-node" cx="560" cy="55" r="8" />
+          <path class="msr-deadend-cross" d="M555 50 L565 60 M565 50 L555 60" />
+          <circle class="msr-deadend-node" cx="430" cy="105" r="8" />
+          <path
+            class="msr-deadend-cross"
+            d="M425 100 L435 110 M435 100 L425 110"
+          />
+          <circle class="msr-deadend-node" cx="520" cy="235" r="8" />
+          <path
+            class="msr-deadend-cross"
+            d="M515 230 L525 240 M525 230 L515 240"
+          />
+          <circle class="msr-deadend-node" cx="300" cy="205" r="8" />
+          <path
+            class="msr-deadend-cross"
+            d="M295 200 L305 210 M305 200 L295 210"
+          />
+          <circle class="msr-stable-node" cx="70" cy="150" r="9" />
+          <text class="msr-paths-label" x="940" y="186" text-anchor="middle">
+            نیاز
+          </text>
+          <text
+            class="msr-paths-label msr-paths-label-fail"
+            x="560"
+            y="33"
+            text-anchor="middle"
+          >
+            ثبت‌نام مستقیم
+          </text>
+          <text
+            class="msr-paths-label msr-paths-label-fail"
+            x="430"
+            y="84"
+            text-anchor="middle"
+          >
+            کارت ارزی مجازی
+          </text>
+          <text
+            class="msr-paths-label msr-paths-label-fail"
+            x="520"
+            y="271"
+            text-anchor="middle"
+          >
+            VPN و حساب موقت
+          </text>
+          <text
+            class="msr-paths-label msr-paths-label-fail"
+            x="300"
+            y="241"
+            text-anchor="middle"
+          >
+            واسطه‌های متفرقه
+          </text>
+          <text
+            class="msr-paths-label msr-paths-label-stable"
+            x="72"
+            y="121"
+            text-anchor="start"
+          >
+            مسیر پایدار
+          </text>
+        </svg>
+        <div class="msr-paths-legend">
+          <span class="msr-legend-item">
+            <span class="msr-legend-swatch"></span>
+            مسیر پایدار (Masirapi)
+          </span>
+          <span class="msr-legend-item">
+            <span class="msr-legend-swatch msr-legend-swatch-fail"></span>
+            مسیرهای ناموفق
+          </span>
+        </div>
+      </div>
+
+      <div class="msr-deadends msr-reveal">
+        <article class="msr-deadend">
+          <div class="msr-deadend-head">
+            <span class="msr-deadend-x" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+              >
+                <path d="m6 6 12 12M18 6 6 18" />
+              </svg>
+            </span>
+            <span class="msr-deadend-title">ثبت‌نام مستقیم در هر سرویس</span>
+          </div>
+          <p>
+            حساب‌ها یکی‌یکی با تحریم بسته می‌شدند و دسترسی درست وسط کار قطع
+            می‌شد؛ هر بار یعنی شروع دوباره از صفر.
+          </p>
+          <span class="msr-deadend-tag">بن‌بست</span>
+        </article>
+        <article class="msr-deadend">
+          <div class="msr-deadend-head">
+            <span class="msr-deadend-x" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+              >
+                <path d="m6 6 12 12M18 6 6 18" />
+              </svg>
+            </span>
+            <span class="msr-deadend-title">کارت ارزی مجازی</span>
+          </div>
+          <p>
+            تهیهٔ کارت پرهزینه و ناپایدار بود؛ هر بار شارژ دوباره یک ریسک تازه
+            بود و هزینهٔ تمام‌شدهٔ هر مدل معلوم نبود.
+          </p>
+          <span class="msr-deadend-tag">بن‌بست</span>
+        </article>
+        <article class="msr-deadend">
+          <div class="msr-deadend-head">
+            <span class="msr-deadend-x" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+              >
+                <path d="m6 6 12 12M18 6 6 18" />
+              </svg>
+            </span>
+            <span class="msr-deadend-title">VPN و حساب‌های موقت</span>
+          </div>
+          <p>
+            اتصال شکننده بود و با هر تغییر منطقه از هم می‌پاشید؛ نمی‌شد روی چنین
+            پایه‌ای یک محصول واقعی ساخت.
+          </p>
+          <span class="msr-deadend-tag">بن‌بست</span>
+        </article>
+        <article class="msr-deadend">
+          <div class="msr-deadend-head">
+            <span class="msr-deadend-x" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+              >
+                <path d="m6 6 12 12M18 6 6 18" />
+              </svg>
+            </span>
+            <span class="msr-deadend-title">واسطه‌های متفرقه</span>
+          </div>
+          <p>
+            نه شفافیت قیمت داشتند نه پشتیبانی؛ هر لحظه ممکن بود ناپدید شوند و
+            محصول ما را با خود ببرند.
+          </p>
+          <span class="msr-deadend-tag">بن‌بست</span>
+        </article>
+      </div>
+
+      <p class="msr-stable-head">
+        و این، <em>مسیر پایداری</em> است که باقی ماند
+      </p>
+      <div
+        class="msr-route"
+        tabindex="0"
+        aria-label="مسیر پایدار شکل‌گیری Masirapi"
+      >
         <article class="msr-station">
           <p class="msr-station-step">ایستگاه ۱</p>
           <h3>جرقه</h3>
           <p>
-            تیم ما برای یک محصول داخلی به چند مدل نیاز داشت و هر بار با همان
-            سدها روبه‌رو شد: ثبت‌نام، کارت ارزی، کلید جدا و پنل جدا.
+            برای یک محصول داخلی به چند مدل نیاز داشتیم و هر بار به همان سدها
+            می‌خوردیم: ثبت‌نام، کارت ارزی، کلید جدا و پنل جدا. تصمیم گرفتیم
+            خودمان راه را بسازیم.
           </p>
         </article>
         <article class="msr-station">
@@ -1302,33 +1605,34 @@ client.chat.completions.create(model=<span class="tk-s">"gpt-4o-mini"</span>, me
           <h3>لایهٔ مشترک</h3>
           <p>
             یک واسط سازگار با OpenAI ساختیم تا همهٔ ارائه‌دهندگان از یک نقطه
-            فراخوانی شوند و تغییر مدل هزینهٔ بازنویسی نداشته باشد.
+            فراخوانی شوند؛ تغییر مدل دیگر هزینهٔ بازنویسی ندارد.
           </p>
         </article>
         <article class="msr-station">
           <p class="msr-station-step">ایستگاه ۳</p>
           <h3>پرداخت و پنل</h3>
           <p>
-            پرداخت ریالی، مدیریت کلید و گزارش مصرف را اضافه کردیم تا استفادهٔ
-            روزمره بدون دغدغهٔ ارزی انجام شود.
+            پرداخت ریالی، مدیریت کلید و گزارش مصرف لحظه‌ای را اضافه کردیم تا
+            استفادهٔ روزمره بدون دغدغهٔ ارزی و بدون هزینهٔ پنهان باشد.
           </p>
         </article>
         <article class="msr-station">
           <p class="msr-station-step">ایستگاه ۴</p>
           <h3>کنار تیم‌های ایرانی</h3>
           <p>
-            امروز Masirapi با بیش از ۴۰ ارائه‌دهنده و پشتیبانی فارسی، در خدمت
+            امروز Masirapi با بیش از ۴۰ ارائه‌دهنده و پشتیبانی فارسی، کنار
             تیم‌هایی است که روی محصول کار می‌کنند، نه روی زیرساخت.
           </p>
         </article>
       </div>
-      <p class="msr-route-hint">← برای ادامهٔ مسیر بکشید</p>
+      <p class="msr-route-hint">← برای ادامهٔ مسیر پایدار بکشید</p>
 
       <div class="msr-values">
         <div class="msr-value">
           <p class="msr-value-word">شفافیت</p>
           <p>
-            قیمت هر مدل و مصرف لحظه‌ای در داشبورد مشخص است؛ بدون هزینهٔ پنهان.
+            قیمت هر مدل و مصرف لحظه‌ای در داشبورد روشن است؛ بدون هزینهٔ پنهان و
+            بدون غافلگیری.
           </p>
         </div>
         <div class="msr-value">
@@ -1341,8 +1645,8 @@ client.chat.completions.create(model=<span class="tk-s">"gpt-4o-mini"</span>, me
         <div class="msr-value">
           <p class="msr-value-word">کنار شما</p>
           <p>
-            پشتیبانی فارسی و کانال تلگرام؛ سؤال شما را کسی می‌خواند که محصول
-            را می‌شناسد.
+            پشتیبانی فارسی و کانال تلگرام؛ سؤال شما را کسی می‌خواند که خودِ
+            محصول را ساخته است.
           </p>
         </div>
       </div>
@@ -1354,7 +1658,7 @@ client.chat.completions.create(model=<span class="tk-s">"gpt-4o-mini"</span>, me
     <div class="msr-wrap msr-reveal">
       <h2>روی محصول کار کنید، نه روی زیرساخت.</h2>
       <div class="msr-closing-links">
-        <a class="msr-link-big" href="/sign-up">
+        <a class="msr-link-big" href="/dashboard">
           شروع رایگان
           <svg
             viewBox="0 0 24 24"
