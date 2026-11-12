@@ -1,0 +1,2330 @@
+<style>
+  .msr {
+    /* Theme bridge: surfaces, text and borders come from the app tokens, which
+     inherit into this isolated shadow root. The wrapper receives the `dark`
+     class when the user theme is dark, so `.dark .msr` below swaps the accent
+     palette for its dark variant. */
+    --msr-bg: var(--background, #ffffff);
+    --msr-surface: color-mix(
+      in oklab,
+      var(--foreground, #0f172a) 4%,
+      var(--background, #ffffff)
+    );
+    --msr-surface-2: color-mix(
+      in oklab,
+      var(--foreground, #0f172a) 7%,
+      var(--background, #ffffff)
+    );
+    --msr-line: var(--border, #e2e8f0);
+    --msr-wire: color-mix(
+      in oklab,
+      var(--foreground, #0f172a) 22%,
+      transparent
+    );
+    --msr-grid: color-mix(in oklab, var(--foreground, #0f172a) 7%, transparent);
+    --msr-text: var(--foreground, #0f172a);
+    --msr-muted: var(--muted-foreground, #475569);
+    --msr-faint: var(--muted-foreground, #475569);
+    --msr-cyan: #0891b2;
+    --msr-cyan-l: #0e7490;
+    --msr-violet: #7c3aed;
+    --msr-violet-l: #6d28d9;
+    --msr-magenta: #c026d3;
+    --msr-amber: #b45309;
+    --msr-emerald: #047857;
+    --msr-blue: #1d4ed8;
+    --msr-rose: #be123c;
+    /* The code sample keeps a dark surface in both themes. */
+    --msr-code-bg: #0a0f1e;
+    --msr-code-line: #1b2540;
+    --msr-code-text: #d7e0f0;
+    --msr-code-faint: #7d8ba3;
+    --msr-code-accent: #67e8f9;
+    position: relative;
+    overflow: hidden;
+    overflow: clip;
+    background: var(--msr-bg);
+    color: var(--msr-text);
+    font-family: 'Vazirmatn Variable', 'Segoe UI', Tahoma, sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    text-align: right;
+    -webkit-font-smoothing: antialiased;
+  }
+  .dark .msr {
+    --msr-cyan: #22d3ee;
+    --msr-cyan-l: #67e8f9;
+    --msr-violet: #8b5cf6;
+    --msr-violet-l: #c4b5fd;
+    --msr-magenta: #e879f9;
+    --msr-amber: #fbbf24;
+    --msr-emerald: #34d399;
+    --msr-blue: #60a5fa;
+    --msr-rose: #fb7185;
+  }
+  .msr *,
+  .msr *::before,
+  .msr *::after {
+    box-sizing: border-box;
+  }
+  .msr ::selection {
+    background: color-mix(in oklab, var(--msr-cyan) 28%, transparent);
+    color: var(--msr-text);
+  }
+  .msr a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .msr a:focus-visible,
+  .msr summary:focus-visible,
+  .msr label:focus-visible {
+    outline: 2px solid var(--msr-cyan-l);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  .msr p,
+  .msr h1,
+  .msr h2,
+  .msr h3,
+  .msr dl,
+  .msr dd,
+  .msr ul,
+  .msr ol,
+  .msr figure {
+    margin: 0;
+    padding: 0;
+  }
+  .msr ul,
+  .msr ol {
+    list-style: none;
+  }
+  .msr svg {
+    display: block;
+  }
+
+  /* ---------- ambient background ---------- */
+  .msr-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .msr-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--msr-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--msr-grid) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(
+      ellipse 90% 62% at 50% 0%,
+      #000 30%,
+      transparent 78%
+    );
+    mask-image: radial-gradient(
+      ellipse 90% 62% at 50% 0%,
+      #000 30%,
+      transparent 78%
+    );
+  }
+  .msr-aurora {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.5;
+  }
+  .msr-aurora-a {
+    width: 560px;
+    height: 560px;
+    top: -180px;
+    right: -120px;
+    background: radial-gradient(
+      circle,
+      rgba(139, 92, 246, 0.5),
+      transparent 68%
+    );
+    animation: msr-drift-a 22s ease-in-out infinite alternate;
+  }
+  .msr-aurora-b {
+    width: 520px;
+    height: 520px;
+    top: 220px;
+    left: -160px;
+    background: radial-gradient(
+      circle,
+      rgba(34, 211, 238, 0.38),
+      transparent 68%
+    );
+    animation: msr-drift-b 27s ease-in-out infinite alternate;
+  }
+  .msr-aurora-c {
+    width: 460px;
+    height: 460px;
+    top: 1150px;
+    right: 12%;
+    background: radial-gradient(
+      circle,
+      rgba(232, 121, 249, 0.22),
+      transparent 68%
+    );
+    animation: msr-drift-a 31s ease-in-out infinite alternate-reverse;
+  }
+  .msr-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+  @keyframes msr-drift-a {
+    from {
+      transform: translate(0, 0) scale(1);
+    }
+    to {
+      transform: translate(-46px, 40px) scale(1.1);
+    }
+  }
+  @keyframes msr-drift-b {
+    from {
+      transform: translate(0, 0) scale(1.06);
+    }
+    to {
+      transform: translate(52px, -34px) scale(0.96);
+    }
+  }
+
+  .msr-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1140px;
+    margin-inline: auto;
+    padding-inline: clamp(20px, 4vw, 40px);
+  }
+
+  /* ---------- hero ---------- */
+  .msr-hero {
+    position: relative;
+    padding-top: clamp(96px, 13vh, 128px);
+  }
+  .msr-hero-grid {
+    display: grid;
+    grid-template-columns: 1.02fr 0.98fr;
+    gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+  }
+  .msr-hero-copy > * {
+    animation: msr-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .msr-hero-copy > *:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  .msr-hero-copy > *:nth-child(2) {
+    animation-delay: 0.13s;
+  }
+  .msr-hero-copy > *:nth-child(3) {
+    animation-delay: 0.21s;
+  }
+  .msr-hero-copy > *:nth-child(4) {
+    animation-delay: 0.29s;
+  }
+  .msr-hero-copy > *:nth-child(5) {
+    animation-delay: 0.37s;
+  }
+  @keyframes msr-enter {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .msr-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 16px !important;
+    border-radius: 999px;
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    background: rgba(34, 211, 238, 0.07);
+    color: var(--msr-cyan-l);
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .msr-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--msr-cyan);
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.55);
+    animation: msr-ping 2.2s ease-out infinite;
+  }
+  @keyframes msr-ping {
+    0% {
+      box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.5);
+    }
+    70% {
+      box-shadow: 0 0 0 9px rgba(34, 211, 238, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+    }
+  }
+
+  .msr h1 {
+    margin-top: 22px;
+    font-size: clamp(2.5rem, 5.4vw, 4.1rem);
+    font-weight: 900;
+    line-height: 1.22;
+    letter-spacing: -0.01em;
+  }
+  .msr-grad {
+    background: linear-gradient(
+      92deg,
+      var(--msr-cyan-l) 5%,
+      var(--msr-violet) 52%,
+      var(--msr-magenta) 95%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .msr-lead {
+    margin-top: 18px;
+    max-width: 47ch;
+    color: var(--msr-muted);
+    font-size: clamp(1rem, 1.4vw, 1.13rem);
+    line-height: 2;
+  }
+  .msr-lead strong {
+    color: var(--msr-text);
+    font-weight: 700;
+  }
+
+  .msr-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 30px;
+  }
+  .msr-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 26px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1.4;
+    transition:
+      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.25s,
+      border-color 0.25s,
+      background 0.25s;
+  }
+  .msr-btn svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.25s;
+  }
+  .msr-btn-primary {
+    background: linear-gradient(120deg, var(--msr-cyan-l), var(--msr-cyan));
+    color: #06222b;
+    box-shadow: 0 8px 28px -8px rgba(34, 211, 238, 0.55);
+  }
+  .msr-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 36px -8px rgba(34, 211, 238, 0.7);
+  }
+  .msr-btn-primary:hover svg {
+    transform: translateX(-4px);
+  }
+  .msr-btn-primary:active {
+    transform: translateY(0);
+  }
+  .msr-btn-ghost {
+    border: 1px solid var(--msr-line);
+    color: var(--msr-text);
+    background: var(--msr-surface);
+  }
+  .msr-btn-ghost:hover {
+    transform: translateY(-2px);
+    border-color: rgba(34, 211, 238, 0.55);
+    background: rgba(34, 211, 238, 0.06);
+  }
+  .msr-btn-ghost:active {
+    transform: translateY(0);
+  }
+
+  .msr-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 38px !important;
+  }
+  .msr-stats li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-inline-start: clamp(14px, 1.8vw, 26px);
+    border-inline-start: 1px solid var(--msr-line);
+  }
+  .msr-stats li:first-child {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+  .msr-stats strong {
+    font-size: 1.65rem;
+    font-weight: 900;
+    line-height: 1.3;
+  }
+  .msr-stats strong em {
+    font-style: normal;
+    color: var(--msr-cyan);
+  }
+  .msr-stats span {
+    color: var(--msr-faint);
+    font-size: 0.8rem;
+  }
+
+  /* hero artwork */
+  .msr-hero-art {
+    position: relative;
+    animation: msr-enter 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+  }
+  .msr-hero-art > svg {
+    width: 100%;
+    height: auto;
+    /* Pinned regardless of the host page direction: the chip labels are
+       anchored to the right edge of their boxes for RTL. */
+    direction: rtl;
+  }
+  /* The artwork reads its neutral chrome from the theme; provider colors stay
+   fixed so the illustration keeps its identity in both modes. */
+  .msr-box {
+    fill: var(--msr-surface);
+  }
+  .msr-wire {
+    stroke: var(--msr-wire);
+  }
+  .msr-wire-strong {
+    stroke: color-mix(in oklab, var(--msr-text) 32%, transparent);
+  }
+  .msr-chip-text {
+    fill: var(--msr-text);
+  }
+  .msr-chip-sub {
+    fill: var(--msr-muted);
+  }
+  .msr-art-chip {
+    position: absolute;
+    inset-inline-start: 2%;
+    bottom: -1%;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px;
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--msr-surface) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--msr-text);
+    box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.7);
+    animation: msr-float 5.5s ease-in-out infinite alternate;
+  }
+  .msr-art-chip svg {
+    width: 16px;
+    height: 16px;
+    color: var(--msr-emerald);
+  }
+  @keyframes msr-float {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-9px);
+    }
+  }
+
+  .msr-node {
+    animation: msr-float 6s ease-in-out infinite alternate;
+    transform-box: fill-box;
+  }
+  .msr-node-d1 {
+    animation-delay: -1.2s;
+  }
+  .msr-node-d2 {
+    animation-delay: -2.6s;
+  }
+  .msr-node-d3 {
+    animation-delay: -3.8s;
+  }
+  .msr-node-d4 {
+    animation-delay: -5s;
+  }
+  .msr-node-d5 {
+    animation-delay: -2s;
+  }
+  .msr-node-d6 {
+    animation-delay: -4.4s;
+  }
+  .msr-flow {
+    stroke-dasharray: 5 9;
+    animation: msr-flow 1.15s linear infinite;
+  }
+  @keyframes msr-flow {
+    to {
+      stroke-dashoffset: -28;
+    }
+  }
+  .msr-ring {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: msr-spin 26s linear infinite;
+  }
+  .msr-ring-rev {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: msr-spin 18s linear infinite reverse;
+  }
+  @keyframes msr-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .msr-hub-pulse {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: msr-hub 3s ease-out infinite;
+  }
+  @keyframes msr-hub {
+    0% {
+      transform: scale(0.92);
+      opacity: 0.55;
+    }
+    100% {
+      transform: scale(1.35);
+      opacity: 0;
+    }
+  }
+  .msr-packet {
+    display: none;
+  }
+  @supports (offset-path: path('M0 0h1')) {
+    .msr-packet {
+      display: block;
+      offset-rotate: 0deg;
+      animation: msr-travel linear infinite;
+    }
+    .msr-p1 {
+      offset-path: path('M368 50 C330 50 326 172 288 172');
+      animation-duration: 2.5s;
+    }
+    .msr-p2 {
+      offset-path: path('M368 178 C334 178 332 210 298 210');
+      animation-duration: 2.1s;
+      animation-delay: -0.9s;
+    }
+    .msr-p3 {
+      offset-path: path('M368 306 C332 306 330 248 288 248');
+      animation-duration: 2.9s;
+      animation-delay: -1.7s;
+    }
+    .msr-p4 {
+      offset-path: path('M198 210 C176 210 158 210 136 210');
+      animation-duration: 1.6s;
+    }
+  }
+  @keyframes msr-travel {
+    from {
+      offset-distance: 0%;
+    }
+    to {
+      offset-distance: 100%;
+    }
+  }
+
+  /* ---------- provider marquee ---------- */
+  .msr-marquee {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(44px, 6vw, 72px);
+    border-block: 1px solid var(--msr-line);
+    background: color-mix(in oklab, var(--msr-surface) 55%, transparent);
+    overflow: hidden;
+    direction: ltr;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 9%,
+      #000 91%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 9%,
+      #000 91%,
+      transparent
+    );
+  }
+  .msr-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: msr-marquee 36s linear infinite;
+  }
+  .msr-marquee:hover .msr-marquee-track {
+    animation-play-state: paused;
+  }
+  .msr-marquee ul {
+    display: flex;
+    align-items: center;
+    gap: 52px;
+    padding: 15px 26px 15px 52px;
+  }
+  .msr-marquee li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    color: var(--msr-muted);
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .msr-marquee li i {
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    transform: rotate(45deg);
+    background: var(--msr-faint);
+  }
+  @keyframes msr-marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ---------- sections ---------- */
+  .msr-section {
+    position: relative;
+    z-index: 1;
+    padding-block: clamp(64px, 9vw, 108px);
+  }
+  .msr-section-tint-violet {
+    background: radial-gradient(
+      ellipse 60% 45% at 85% 8%,
+      rgba(139, 92, 246, 0.08),
+      transparent 70%
+    );
+  }
+  .msr-section-tint-cyan {
+    background: radial-gradient(
+      ellipse 55% 45% at 12% 12%,
+      rgba(34, 211, 238, 0.07),
+      transparent 70%
+    );
+  }
+  .msr-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--msr-cyan-l);
+    font-size: 0.85rem;
+    font-weight: 800;
+  }
+  .msr-kicker::before {
+    content: '';
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--msr-cyan), var(--msr-violet));
+  }
+  .msr h2 {
+    margin-top: 12px;
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    font-weight: 900;
+    line-height: 1.35;
+  }
+  .msr-section-lead {
+    margin-top: 12px;
+    max-width: 62ch;
+    color: var(--msr-muted);
+    font-size: 1rem;
+  }
+  .msr-divider {
+    position: relative;
+    z-index: 1;
+    height: 1px;
+    max-width: 1140px;
+    margin-inline: auto;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(139, 92, 246, 0.4),
+      rgba(34, 211, 238, 0.4),
+      transparent
+    );
+  }
+
+  /* ---------- feature cards ---------- */
+  .msr-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 44px;
+  }
+  .msr-card {
+    position: relative;
+    padding: 26px 24px;
+    border-radius: 20px;
+    background: var(--msr-surface);
+    border: 1px solid var(--msr-line);
+    transition:
+      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s,
+      box-shadow 0.3s;
+  }
+  .msr-card::before {
+    content: '';
+    position: absolute;
+    inset-inline: 24px;
+    top: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--msr-accent, var(--msr-cyan)),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .msr-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--msr-accent-border, rgba(34, 211, 238, 0.4));
+    box-shadow: 0 22px 44px -18px
+      var(--msr-accent-glow, rgba(34, 211, 238, 0.25));
+  }
+  .msr-card:hover::before {
+    opacity: 1;
+  }
+  .msr-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+    color: var(--msr-accent, var(--msr-cyan));
+    background: var(--msr-accent-bg, rgba(34, 211, 238, 0.1));
+    border: 1px solid var(--msr-accent-border, rgba(34, 211, 238, 0.3));
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .msr-card:hover .msr-card-icon {
+    transform: rotate(-6deg) scale(1.07);
+  }
+  .msr-card-icon svg {
+    width: 23px;
+    height: 23px;
+  }
+  .msr-card h3 {
+    font-size: 1.06rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .msr-card p {
+    color: var(--msr-muted);
+    font-size: 0.88rem;
+    line-height: 1.95;
+  }
+  .msr-accent-cyan {
+    --msr-accent: var(--msr-cyan);
+    --msr-accent-bg: rgba(34, 211, 238, 0.1);
+    --msr-accent-border: rgba(34, 211, 238, 0.38);
+    --msr-accent-glow: rgba(34, 211, 238, 0.22);
+  }
+  .msr-accent-violet {
+    --msr-accent: var(--msr-violet-l);
+    --msr-accent-bg: rgba(139, 92, 246, 0.12);
+    --msr-accent-border: rgba(139, 92, 246, 0.42);
+    --msr-accent-glow: rgba(139, 92, 246, 0.26);
+  }
+  .msr-accent-emerald {
+    --msr-accent: var(--msr-emerald);
+    --msr-accent-bg: rgba(52, 211, 153, 0.1);
+    --msr-accent-border: rgba(52, 211, 153, 0.38);
+    --msr-accent-glow: rgba(52, 211, 153, 0.22);
+  }
+  .msr-accent-amber {
+    --msr-accent: var(--msr-amber);
+    --msr-accent-bg: rgba(251, 191, 36, 0.1);
+    --msr-accent-border: rgba(251, 191, 36, 0.38);
+    --msr-accent-glow: rgba(251, 191, 36, 0.2);
+  }
+  .msr-accent-magenta {
+    --msr-accent: var(--msr-magenta);
+    --msr-accent-bg: rgba(232, 121, 249, 0.1);
+    --msr-accent-border: rgba(232, 121, 249, 0.38);
+    --msr-accent-glow: rgba(232, 121, 249, 0.22);
+  }
+  .msr-accent-blue {
+    --msr-accent: var(--msr-blue);
+    --msr-accent-bg: rgba(96, 165, 250, 0.1);
+    --msr-accent-border: rgba(96, 165, 250, 0.4);
+    --msr-accent-glow: rgba(96, 165, 250, 0.24);
+  }
+
+  /* ---------- steps + code ---------- */
+  .msr-start-grid {
+    display: grid;
+    grid-template-columns: 0.92fr 1.08fr;
+    gap: clamp(30px, 4.5vw, 60px);
+    margin-top: 44px;
+    align-items: start;
+  }
+  .msr-steps {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+  .msr-steps::before {
+    content: '';
+    position: absolute;
+    inset-inline-end: 19px;
+    top: 22px;
+    bottom: 22px;
+    width: 2px;
+    background: linear-gradient(
+      180deg,
+      var(--msr-cyan),
+      var(--msr-violet),
+      var(--msr-magenta)
+    );
+    opacity: 0.35;
+    border-radius: 2px;
+  }
+  .msr-step {
+    position: relative;
+    padding-inline-end: 62px;
+  }
+  .msr-step-num {
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--msr-surface-2);
+    border: 1px solid rgba(34, 211, 238, 0.45);
+    color: var(--msr-cyan-l);
+    font-size: 1.05rem;
+    font-weight: 900;
+    box-shadow: 0 0 22px -6px rgba(34, 211, 238, 0.5);
+  }
+  .msr-step h3 {
+    font-size: 1.08rem;
+    font-weight: 800;
+    padding-top: 7px;
+  }
+  .msr-step p {
+    margin-top: 6px;
+    color: var(--msr-muted);
+    font-size: 0.9rem;
+    line-height: 1.95;
+  }
+  .msr-step a {
+    color: var(--msr-cyan-l);
+    font-weight: 700;
+    border-bottom: 1px dashed
+      color-mix(in oklab, var(--msr-cyan-l) 45%, transparent);
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+  }
+  .msr-step a:hover {
+    color: color-mix(in oklab, var(--msr-cyan-l) 70%, var(--msr-text));
+    border-bottom-style: solid;
+  }
+  .msr-step code {
+    direction: ltr;
+    unicode-bidi: embed;
+    padding: 2px 7px;
+    border-radius: 7px;
+    font-size: 0.8em;
+    background: rgba(34, 211, 238, 0.09);
+    border: 1px solid rgba(34, 211, 238, 0.22);
+    color: var(--msr-cyan-l);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .msr-tip {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    background: rgba(251, 191, 36, 0.06);
+    color: var(--msr-muted);
+    font-size: 0.84rem;
+    line-height: 1.9;
+  }
+  .msr-tip svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: var(--msr-amber);
+  }
+  .msr-tip strong {
+    color: var(--msr-text);
+    font-weight: 700;
+  }
+
+  .msr-code {
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--msr-code-bg);
+    border: 1px solid var(--msr-code-line);
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8);
+  }
+  .msr-code input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .msr-code-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    direction: ltr;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--msr-code-line);
+    background: rgba(13, 20, 40, 0.7);
+  }
+  .msr-code-dots {
+    display: flex;
+    gap: 6px;
+    margin-inline-end: 10px;
+  }
+  .msr-code-dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .msr-code-head label {
+    padding: 6px 14px;
+    border-radius: 9px;
+    cursor: pointer;
+    color: var(--msr-code-faint);
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    border: 1px solid transparent;
+    transition:
+      color 0.2s,
+      background 0.2s,
+      border-color 0.2s;
+  }
+  .msr-code-head label:hover {
+    color: var(--msr-code-text);
+    background: rgba(34, 211, 238, 0.06);
+  }
+  #msr-lang-py:checked ~ .msr-code-head label[for='msr-lang-py'],
+  #msr-lang-node:checked ~ .msr-code-head label[for='msr-lang-node'],
+  #msr-lang-curl:checked ~ .msr-code-head label[for='msr-lang-curl'] {
+    color: var(--msr-code-accent);
+    background: rgba(34, 211, 238, 0.1);
+    border-color: rgba(34, 211, 238, 0.35);
+  }
+  .msr-code:has(#msr-lang-py:focus-visible) label[for='msr-lang-py'],
+  .msr-code:has(#msr-lang-node:focus-visible) label[for='msr-lang-node'],
+  .msr-code:has(#msr-lang-curl:focus-visible) label[for='msr-lang-curl'] {
+    outline: 2px solid var(--msr-code-accent);
+    outline-offset: 2px;
+  }
+  .msr-code-body {
+    direction: ltr;
+    text-align: left;
+  }
+  .msr-panel {
+    display: none;
+  }
+  #msr-lang-py:checked ~ .msr-code-body .msr-panel-py,
+  #msr-lang-node:checked ~ .msr-code-body .msr-panel-node,
+  #msr-lang-curl:checked ~ .msr-code-body .msr-panel-curl {
+    display: block;
+    animation: msr-fade 0.35s ease both;
+  }
+  @keyframes msr-fade {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .msr-panel pre {
+    margin: 0;
+    padding: 20px 22px;
+    overflow-x: auto;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono',
+      monospace;
+    font-size: 0.82rem;
+    line-height: 1.85;
+    color: var(--msr-code-text);
+    scrollbar-width: thin;
+    scrollbar-color: #2b3a5e var(--msr-code-bg);
+  }
+  .msr-panel pre::-webkit-scrollbar {
+    height: 8px;
+  }
+  .msr-panel pre::-webkit-scrollbar-track {
+    background: var(--msr-code-bg);
+  }
+  .msr-panel pre::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #155e75, #4c1d95);
+    border-radius: 8px;
+  }
+  .msr-panel pre::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #0e7490, #5b21b6);
+  }
+  .msr-hl {
+    display: block;
+    margin-inline: -22px;
+    padding-inline: 20px;
+    background: rgba(34, 211, 238, 0.07);
+    box-shadow: inset 2px 0 0 var(--msr-code-accent);
+  }
+  .tk-k {
+    color: #c4b5fd;
+  }
+  .tk-s {
+    color: #6ee7b7;
+  }
+  .tk-f {
+    color: var(--msr-code-accent);
+  }
+  .tk-n {
+    color: #fbbf24;
+  }
+  .tk-c {
+    color: var(--msr-code-faint);
+    font-style: italic;
+  }
+  .msr-code-foot {
+    direction: rtl;
+    text-align: right;
+    padding: 11px 18px !important;
+    border-top: 1px solid var(--msr-code-line);
+    color: var(--msr-code-faint);
+    font-size: 0.78rem;
+    background: rgba(13, 20, 40, 0.7);
+  }
+  .msr-code-foot strong {
+    color: var(--msr-code-accent);
+    font-weight: 700;
+  }
+
+  /* ---------- FAQ ---------- */
+  .msr-faq {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 40px;
+  }
+  .msr-faq details {
+    border: 1px solid var(--msr-line);
+    border-radius: 16px;
+    background: var(--msr-surface);
+    transition:
+      border-color 0.25s,
+      box-shadow 0.25s;
+  }
+  .msr-faq details:hover {
+    border-color: color-mix(in oklab, var(--msr-text) 25%, transparent);
+  }
+  .msr-faq details[open] {
+    border-color: rgba(34, 211, 238, 0.4);
+    box-shadow: 0 14px 34px -18px rgba(34, 211, 238, 0.25);
+  }
+  .msr-faq summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 0.98rem;
+    font-weight: 700;
+  }
+  .msr-faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .msr-faq summary svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--msr-cyan);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .msr-faq details[open] summary svg {
+    transform: rotate(180deg);
+  }
+  .msr-faq-a {
+    padding: 0 22px 20px !important;
+    color: var(--msr-muted);
+    font-size: 0.9rem;
+    line-height: 2;
+  }
+  .msr-faq details[open] .msr-faq-a {
+    animation: msr-fade 0.35s ease both;
+  }
+  .msr-faq-a a {
+    color: var(--msr-cyan-l);
+    font-weight: 700;
+    border-bottom: 1px dashed
+      color-mix(in oklab, var(--msr-cyan-l) 45%, transparent);
+  }
+  .msr-faq-a a:hover {
+    border-bottom-style: solid;
+  }
+
+  /* ---------- Telegram CTA ---------- */
+  .msr-telegram {
+    position: relative;
+    margin-top: 8px;
+    padding: clamp(30px, 5vw, 54px);
+    border-radius: 28px;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        ellipse 70% 120% at 8% 0%,
+        rgba(56, 189, 248, 0.18),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 60% 120% at 95% 100%,
+        rgba(37, 99, 235, 0.16),
+        transparent 60%
+      ),
+      linear-gradient(
+        150deg,
+        color-mix(in oklab, var(--msr-surface) 92%, var(--msr-blue)),
+        var(--msr-surface)
+      );
+    border: 1px solid rgba(56, 189, 248, 0.32);
+    display: flex;
+    align-items: center;
+    gap: clamp(22px, 3.5vw, 40px);
+  }
+  .msr-telegram::before {
+    content: '';
+    position: absolute;
+    inset-inline: 40px;
+    top: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(125, 211, 252, 0.8),
+      transparent
+    );
+  }
+  .msr-tg-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 86px;
+    height: 86px;
+    border-radius: 24px;
+    background: linear-gradient(140deg, #38bdf8, #2563eb);
+    box-shadow: 0 18px 40px -12px rgba(56, 189, 248, 0.55);
+    animation: msr-float 5s ease-in-out infinite alternate;
+  }
+  .msr-tg-icon svg {
+    width: 40px;
+    height: 40px;
+    color: #fff;
+  }
+  .msr-telegram-copy {
+    flex: 1;
+    min-width: 220px;
+  }
+  .msr-telegram-copy h2 {
+    margin-top: 0;
+  }
+  .msr-telegram-copy p {
+    margin-top: 10px;
+    color: var(--msr-muted);
+    font-size: 0.95rem;
+    max-width: 52ch;
+  }
+  .msr-telegram-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .msr-btn-tg {
+    background: linear-gradient(120deg, #7dd3fc, #38bdf8);
+    color: #082f49;
+    box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.6);
+  }
+  .msr-btn-tg:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px -10px rgba(56, 189, 248, 0.75);
+  }
+  .msr-btn-tg:active {
+    transform: translateY(0);
+  }
+  .msr-tg-address {
+    direction: ltr;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    color: var(--msr-muted);
+    padding: 4px 12px;
+    border: 1px dashed var(--msr-line);
+    border-radius: 9px;
+  }
+
+  /* ---------- footer ---------- */
+  .msr-footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--msr-line);
+    padding-block: 34px;
+  }
+  .msr-footer-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .msr-footer p {
+    color: var(--msr-muted);
+    font-size: 0.88rem;
+  }
+  .msr-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+  }
+  .msr-footer nav a {
+    color: var(--msr-faint);
+    font-size: 0.84rem;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .msr-footer nav a:hover {
+    color: var(--msr-cyan-l);
+  }
+  .msr-footer small {
+    display: block;
+    margin-top: 14px;
+    color: var(--msr-faint);
+    font-size: 0.76rem;
+  }
+  .msr-footer-base {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px 24px;
+    margin-top: 14px;
+  }
+  .msr-footer-base small {
+    margin-top: 0;
+  }
+  .msr-enamad {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .msr-enamad img {
+    display: block;
+    width: auto;
+    height: 68px;
+    transition: transform 0.2s ease;
+  }
+  .msr-enamad:hover img {
+    transform: translateY(-2px);
+  }
+
+  /* ---------- scroll reveals (progressive enhancement) ---------- */
+  @supports (animation-timeline: view()) {
+    .msr-reveal {
+      animation: msr-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 45%;
+    }
+    @keyframes msr-rise {
+      from {
+        opacity: 0;
+        transform: translateY(34px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 960px) {
+    .msr-hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .msr-hero-art {
+      max-width: 540px;
+      margin-inline: auto;
+      width: 100%;
+    }
+    .msr-features {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .msr-start-grid {
+      grid-template-columns: 1fr;
+    }
+    .msr-telegram {
+      flex-wrap: wrap;
+    }
+  }
+  @media (max-width: 620px) {
+    .msr-hero {
+      padding-top: 92px;
+    }
+    .msr-features {
+      grid-template-columns: 1fr;
+    }
+    .msr-stats {
+      grid-template-columns: repeat(2, 1fr);
+      row-gap: 18px;
+    }
+    .msr-stats li {
+      padding-inline-start: 18px;
+    }
+    .msr-stats li:nth-child(odd) {
+      padding-inline-start: 0;
+      border-inline-start: 0;
+    }
+    .msr-stats strong {
+      font-size: 1.35rem;
+    }
+    .msr-cta-row .msr-btn {
+      flex: 1;
+      justify-content: center;
+    }
+    .msr-telegram {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .msr-telegram-actions {
+      width: 100%;
+      align-items: stretch;
+    }
+    .msr-telegram-actions .msr-btn {
+      justify-content: center;
+    }
+    .msr-tg-address {
+      text-align: center;
+    }
+    .msr-marquee ul {
+      gap: 34px;
+      padding-inline: 17px 34px;
+    }
+    .msr-footer-grid {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .msr *,
+    .msr *::before,
+    .msr *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .msr-packet {
+      display: none !important;
+    }
+  }
+</style>
+
+<div class="msr" dir="rtl">
+  <div class="msr-bg" aria-hidden="true">
+    <div class="msr-bg-grid"></div>
+    <div class="msr-aurora msr-aurora-a"></div>
+    <div class="msr-aurora msr-aurora-b"></div>
+    <div class="msr-aurora msr-aurora-c"></div>
+    <div class="msr-grain"></div>
+  </div>
+
+  <!-- hero -->
+  <header class="msr-hero">
+    <div class="msr-wrap msr-hero-grid">
+      <div class="msr-hero-copy">
+        <p class="msr-badge">
+          <span class="msr-badge-dot" aria-hidden="true"></span>درگاه یکپارچهٔ
+          هوش مصنوعی
+        </p>
+        <h1>یک کلید،<br /><span class="msr-grad">همهٔ مدل‌ها.</span></h1>
+        <p class="msr-lead">
+          <strong>Masirapi</strong> مدل‌های متنی، تصویری و چندرسانه‌ایِ بیش از
+          ۴۰ ارائه‌دهنده را پشت یک API واحد جمع کرده است؛ با هزینه‌های شفاف
+          تومانی و سازگاری کامل با فرمت OpenAI. فقط آدرس پایه را عوض کنید و شروع
+          کنید.
+        </p>
+        <div class="msr-cta-row">
+          <a class="msr-btn msr-btn-primary" href="/dashboard"
+            >شروع کنید
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M19 12H5" />
+              <path d="m11 18-6-6 6-6" />
+            </svg>
+          </a>
+          <a class="msr-btn msr-btn-ghost" href="/pricing">مدل‌ها و قیمت‌ها</a>
+        </div>
+        <ul class="msr-stats">
+          <li>
+            <strong>۴۰<em>+</em></strong
+            ><span>ارائه‌دهنده</span>
+          </li>
+          <li>
+            <strong>۱۰۰<em>+</em></strong
+            ><span>مدل هوش مصنوعی</span>
+          </li>
+          <li><strong>۱</strong><span>کلید API مشترک</span></li>
+          <li><strong>۳</strong><span>قدم تا شروع</span></li>
+        </ul>
+      </div>
+
+      <div class="msr-hero-art">
+        <svg
+          viewBox="0 0 520 440"
+          role="img"
+          aria-label="نمودار مسیریابی: ارائه‌دهندگان مختلف از طریق Masirapi به برنامهٔ شما متصل می‌شوند"
+        >
+          <defs>
+            <linearGradient id="msr-hub-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#22d3ee" />
+              <stop offset="1" stop-color="#8b5cf6" />
+            </linearGradient>
+            <filter id="msr-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="10" result="b" />
+              <feMerge>
+                <feMergeNode in="b" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          <!-- provider: OpenAI -->
+          <g class="msr-node msr-node-d1">
+            <path
+              d="M368 50 C330 50 326 172 288 172"
+              class="msr-wire"
+              fill="none"
+              stroke="#1c2742"
+              stroke-width="1.5"
+            />
+            <path
+              class="msr-flow"
+              d="M368 50 C330 50 326 172 288 172"
+              fill="none"
+              stroke="#34d399"
+              stroke-width="2"
+              stroke-linecap="round"
+              opacity=".85"
+            />
+            <circle class="msr-packet msr-p1" r="3.5" fill="#34d399" />
+            <rect
+              x="368"
+              y="30"
+              width="136"
+              height="40"
+              rx="12"
+              class="msr-box"
+              fill="#0d1428"
+              stroke="#34d399"
+              stroke-opacity=".35"
+            />
+            <circle cx="382" cy="50" r="4" fill="#34d399" />
+            <text
+              x="494"
+              y="55"
+              font-size="13"
+              font-weight="600"
+              class="msr-chip-text"
+              fill="#dbe4f3"
+            >
+              OpenAI
+            </text>
+          </g>
+          <!-- provider: Claude -->
+          <g class="msr-node msr-node-d2">
+            <path
+              d="M368 114 C332 114 330 190 295 190"
+              class="msr-wire"
+              fill="none"
+              stroke="#1c2742"
+              stroke-width="1.5"
+            />
+            <path
+              class="msr-flow"
+              d="M368 114 C332 114 330 190 295 190"
+              fill="none"
+              stroke="#fb923c"
+              stroke-width="2"
+              stroke-linecap="round"
+              opacity=".85"
+            />
+            <rect
+              x="368"
+              y="94"
+              width="136"
+              height="40"
+              rx="12"
+              class="msr-box"
+              fill="#0d1428"
+              stroke="#fb923c"
+              stroke-opacity=".35"
+            />
+            <circle cx="382" cy="114" r="4" fill="#fb923c" />
+            <text
+              x="494"
+              y="119"
+              font-size="13"
+              font-weight="600"
+              class="msr-chip-text"
+              fill="#dbe4f3"
+            >
+              Claude
+            </text>
+          </g>
+          <!-- provider: Gemini -->
+          <g class="msr-node msr-node-d3">
+            <path
+              d="M368 178 C334 178 332 210 298 210"
+              class="msr-wire"
+              fill="none"
+              stroke="#1c2742"
+              stroke-width="1.5"
+            />
+            <path
+              class="msr-flow"
+              d="M368 178 C334 178 332 210 298 210"
+              fill="none"
+              stroke="#8b5cf6"
+              stroke-width="2"
+              stroke-linecap="round"
+              opacity=".85"
+            />
+            <circle class="msr-packet msr-p2" r="3.5" fill="#a78bfa" />
+            <rect
+              x="368"
+              y="158"
+              width="136"
+              height="40"
+              rx="12"
+              class="msr-box"
+              fill="#0d1428"
+              stroke="#8b5cf6"
+              stroke-opacity=".4"
+            />
+            <circle cx="382" cy="178" r="4" fill="#8b5cf6" />
+            <text
+              x="494"
+              y="183"
+              font-size="13"
+              font-weight="600"
+              class="msr-chip-text"
+              fill="#dbe4f3"
+            >
+              Gemini
+            </text>
+          </g>
+          <!-- provider: DeepSeek -->
+          <g class="msr-node msr-node-d4">
+            <path
+              d="M368 242 C334 242 332 230 295 230"
+              class="msr-wire"
+              fill="none"
+              stroke="#1c2742"
+              stroke-width="1.5"
+            />
+            <path
+              class="msr-flow"
+              d="M368 242 C334 242 332 230 295 230"
+              fill="none"
+              stroke="#60a5fa"
+              stroke-width="2"
+              stroke-linecap="round"
+              opacity=".85"
+            />
+            <rect
+              x="368"
+              y="222"
+              width="136"
+              height="40"
+              rx="12"
+              class="msr-box"
+              fill="#0d1428"
+              stroke="#60a5fa"
+              stroke-opacity=".35"
+            />
+            <circle cx="382" cy="242" r="4" fill="#60a5fa" />
+            <text
+              x="494"
+              y="247"
+              font-size="13"
+              font-weight="600"
+              class="msr-chip-text"
+              fill="#dbe4f3"
+            >
+              DeepSeek
+            </text>
+          </g>
+          <!-- provider: Qwen -->
+          <g class="msr-node msr-node-d5">
+            <path
+              d="M368 306 C332 306 330 248 288 248"
+              class="msr-wire"
+              fill="none"
+              stroke="#1c2742"
+              stroke-width="1.5"
+            />
+            <path
+              class="msr-flow"
+              d="M368 306 C332 306 330 248 288 248"
+              fill="none"
+              stroke="#e879f9"
+              stroke-width="2"
+              stroke-linecap="round"
+              opacity=".85"
+            />
+            <circle class="msr-packet msr-p3" r="3.5" fill="#e879f9" />
+            <rect
+              x="368"
+              y="286"
+              width="136"
+              height="40"
+              rx="12"
+              class="msr-box"
+              fill="#0d1428"
+              stroke="#e879f9"
+              stroke-opacity=".35"
+            />
+            <circle cx="382" cy="306" r="4" fill="#e879f9" />
+            <text
+              x="494"
+              y="311"
+              font-size="13"
+              font-weight="600"
+              class="msr-chip-text"
+              fill="#dbe4f3"
+            >
+              Qwen
+            </text>
+          </g>
+          <!-- more providers -->
+          <g class="msr-node msr-node-d6">
+            <path
+              d="M368 370 C328 370 322 264 280 264"
+              class="msr-wire"
+              fill="none"
+              stroke="#1c2742"
+              stroke-width="1.5"
+            />
+            <path
+              class="msr-flow"
+              d="M368 370 C328 370 322 264 280 264"
+              fill="none"
+              stroke="#94a3b8"
+              stroke-width="2"
+              stroke-linecap="round"
+              opacity=".7"
+            />
+            <rect
+              x="368"
+              y="350"
+              width="136"
+              height="40"
+              rx="12"
+              class="msr-box msr-wire-strong"
+              fill="#0d1428"
+              stroke="#3a4a6e"
+              stroke-dasharray="5 5"
+            />
+            <text
+              x="494"
+              y="375"
+              font-size="12.5"
+              font-weight="600"
+              class="msr-chip-sub"
+              fill="#9aa7bf"
+            >
+              +۳۵ دیگر
+            </text>
+          </g>
+
+          <!-- hub -->
+          <circle
+            class="msr-hub-pulse"
+            cx="248"
+            cy="210"
+            r="52"
+            fill="none"
+            stroke="#22d3ee"
+            stroke-width="1.5"
+          />
+          <circle
+            class="msr-ring msr-wire"
+            cx="248"
+            cy="210"
+            r="64"
+            fill="none"
+            stroke="#2b3a5e"
+            stroke-width="1.5"
+            stroke-dasharray="3 8"
+          />
+          <g class="msr-ring-rev">
+            <circle cx="248" cy="136" r="3.5" fill="#67e8f9" />
+          </g>
+          <circle
+            cx="248"
+            cy="210"
+            r="50"
+            fill="url(#msr-hub-grad)"
+            filter="url(#msr-glow)"
+          />
+          <circle cx="248" cy="210" r="42" fill="#0b1122" opacity=".55" />
+          <image
+            href="/logo.png"
+            x="224"
+            y="180"
+            width="48"
+            height="48"
+            preserveAspectRatio="xMidYMid meet"
+          />
+          <text
+            x="248"
+            y="236"
+            text-anchor="middle"
+            font-size="12.5"
+            font-weight="700"
+            fill="#eaf1fb"
+          >
+            Masirapi
+          </text>
+
+          <!-- your app -->
+          <g class="msr-node msr-node-d3">
+            <path
+              d="M198 210 C176 210 158 210 136 210"
+              class="msr-wire"
+              fill="none"
+              stroke="#1c2742"
+              stroke-width="1.5"
+            />
+            <path
+              class="msr-flow"
+              d="M198 210 C176 210 158 210 136 210"
+              fill="none"
+              stroke="#22d3ee"
+              stroke-width="2.4"
+              stroke-linecap="round"
+            />
+            <circle class="msr-packet msr-p4" r="3.5" fill="#67e8f9" />
+            <rect
+              x="12"
+              y="186"
+              width="124"
+              height="48"
+              rx="14"
+              class="msr-box"
+              fill="#0d1428"
+              stroke="#22d3ee"
+              stroke-opacity=".45"
+            />
+            <path
+              d="M27 204l-6 6 6 6M37 204l6 6-6 6"
+              fill="none"
+              stroke="#67e8f9"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <text
+              x="52"
+              y="208"
+              text-anchor="end"
+              font-size="12.5"
+              font-weight="700"
+              class="msr-chip-text"
+              fill="#eaf1fb"
+            >
+              برنامهٔ شما
+            </text>
+            <text
+              x="52"
+              y="224"
+              text-anchor="end"
+              font-size="9.5"
+              class="msr-chip-sub"
+              fill="#9aa7bf"
+            >
+              یک API واحد
+            </text>
+          </g>
+        </svg>
+        <span class="msr-art-chip">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+          سازگار با OpenAI
+        </span>
+      </div>
+    </div>
+
+    <!-- provider marquee -->
+    <div class="msr-marquee" aria-label="ارائه‌دهندگان پشتیبانی‌شده">
+      <div class="msr-marquee-track">
+        <ul>
+          <li><i style="background: #34d399"></i>OpenAI</li>
+          <li><i style="background: #fb923c"></i>Claude</li>
+          <li><i style="background: #8b5cf6"></i>Gemini</li>
+          <li><i style="background: #60a5fa"></i>DeepSeek</li>
+          <li><i style="background: #e879f9"></i>Qwen</li>
+          <li><i style="background: #fbbf24"></i>Mistral</li>
+          <li><i style="background: #22d3ee"></i>Llama</li>
+          <li><i style="background: #fb7185"></i>Grok</li>
+          <li><i style="background: #38bdf8"></i>Azure OpenAI</li>
+          <li><i style="background: #f59e0b"></i>AWS Bedrock</li>
+          <li><i style="background: #a78bfa"></i>Cohere</li>
+          <li><i style="background: #34d399"></i>GLM</li>
+          <li><i style="background: #e879f9"></i>Kimi</li>
+          <li><i style="background: #60a5fa"></i>Doubao</li>
+          <li><i style="background: #fbbf24"></i>MiniMax</li>
+          <li><i style="background: #22d3ee"></i>Hunyuan</li>
+        </ul>
+        <ul aria-hidden="true">
+          <li><i style="background: #34d399"></i>OpenAI</li>
+          <li><i style="background: #fb923c"></i>Claude</li>
+          <li><i style="background: #8b5cf6"></i>Gemini</li>
+          <li><i style="background: #60a5fa"></i>DeepSeek</li>
+          <li><i style="background: #e879f9"></i>Qwen</li>
+          <li><i style="background: #fbbf24"></i>Mistral</li>
+          <li><i style="background: #22d3ee"></i>Llama</li>
+          <li><i style="background: #fb7185"></i>Grok</li>
+          <li><i style="background: #38bdf8"></i>Azure OpenAI</li>
+          <li><i style="background: #f59e0b"></i>AWS Bedrock</li>
+          <li><i style="background: #a78bfa"></i>Cohere</li>
+          <li><i style="background: #34d399"></i>GLM</li>
+          <li><i style="background: #e879f9"></i>Kimi</li>
+          <li><i style="background: #60a5fa"></i>Doubao</li>
+          <li><i style="background: #fbbf24"></i>MiniMax</li>
+          <li><i style="background: #22d3ee"></i>Hunyuan</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- features -->
+  <section
+    class="msr-section msr-section-tint-violet"
+    aria-labelledby="msr-features-title"
+  >
+    <div class="msr-wrap">
+      <div class="msr-reveal">
+        <p class="msr-kicker">چرا Masirapi؟</p>
+        <h2 id="msr-features-title">همه‌چیز برای یک اتصال بی‌دردسر</h2>
+        <p class="msr-section-lead">
+          از اولین درخواست تا مدیریت مصرف در مقیاس بالا؛ بدون درگیرشدن با
+          حساب‌ها و صورت‌حساب‌های پراکنده.
+        </p>
+      </div>
+      <div class="msr-features">
+        <article class="msr-card msr-accent-cyan msr-reveal">
+          <span class="msr-card-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="5" r="2.5" />
+              <circle cx="5" cy="18" r="2.5" />
+              <circle cx="19" cy="18" r="2.5" />
+              <path d="M10.8 7.2 6.3 15.8M13.2 7.2l4.5 8.6M7.5 18h9" />
+            </svg>
+          </span>
+          <h3>یک درگاه، همهٔ ارائه‌دهندگان</h3>
+          <p>
+            به‌جای ساختن حساب‌های متعدد، مدل‌های متن‌باز و تجاری بیش از ۴۰
+            ارائه‌دهنده را از یک رابط واحد صدا بزنید.
+          </p>
+        </article>
+        <article class="msr-card msr-accent-violet msr-reveal">
+          <span class="msr-card-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m8 6-5 6 5 6M16 6l5 6-5 6M13.5 4l-3 16" />
+            </svg>
+          </span>
+          <h3>سازگار با OpenAI</h3>
+          <p>
+            کد فعلی‌تان را نگه دارید؛ فقط Base URL و کلید API را عوض کنید. SDKها
+            و ابزارهای آشنا همان‌طور کار می‌کنند.
+          </p>
+        </article>
+        <article class="msr-card msr-accent-emerald msr-reveal">
+          <span class="msr-card-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="2.5" y="6" width="19" height="12" rx="2.5" />
+              <circle cx="12" cy="12" r="3" />
+              <path d="M6 9.5v.01M18 14.5v.01" />
+            </svg>
+          </span>
+          <h3>قیمت‌گذاری شفاف تومانی</h3>
+          <p>
+            هزینهٔ هر مدل مشخص و به تومان است؛ بدون نرخ‌های پنهان، با گزارش دقیق
+            هزینهٔ هر درخواست.
+          </p>
+        </article>
+        <article class="msr-card msr-accent-amber msr-reveal">
+          <span class="msr-card-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 15a8 8 0 1 1 16 0" />
+              <path d="m12 15 3.5-4.5" />
+              <circle cx="12" cy="15" r="1.3" />
+              <path d="M12 7v1.5M5.8 10.5l1.2.8M18.2 10.5l-1.2.8" />
+            </svg>
+          </span>
+          <h3>کنترل کامل مصرف</h3>
+          <p>
+            داشبورد مصرف، گزارش هزینه‌ها و تعیین سهمیه برای هر کلید؛ همه‌چیز در
+            یک نگاه، بدون غافلگیری.
+          </p>
+        </article>
+        <article class="msr-card msr-accent-magenta msr-reveal">
+          <span class="msr-card-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="7.5" cy="16.5" r="3.5" />
+              <path d="M10.2 13.8 20 4M16 8l3 3M13.5 10.5l2 2" />
+            </svg>
+          </span>
+          <h3>کلیدهای مستقل و امن</h3>
+          <p>
+            برای هر پروژه یک کلید جدا بسازید، محدودیت مصرف تعیین کنید و هر زمان
+            خواستید آن را ابطال کنید.
+          </p>
+        </article>
+        <article class="msr-card msr-accent-blue msr-reveal">
+          <span class="msr-card-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M7 4h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H9l-5 4V7a3 3 0 0 1 3-3z"
+              />
+              <path d="M8.5 10h.01M12 10h.01M15.5 10h.01" />
+            </svg>
+          </span>
+          <h3>پشتیبانی فارسی</h3>
+          <p>
+            تیم فارسی‌زبان، مستندات روشن و کانال فعال برای پاسخ به سؤال‌ها و
+            اطلاع‌رسانی تغییرات.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="msr-divider" aria-hidden="true"></div>
+
+  <!-- getting started -->
+  <section
+    class="msr-section msr-section-tint-cyan"
+    aria-labelledby="msr-start-title"
+  >
+    <div class="msr-wrap">
+      <div class="msr-reveal">
+        <p class="msr-kicker">شروع کار</p>
+        <h2 id="msr-start-title">در سه قدم متصل شوید</h2>
+        <p class="msr-section-lead">
+          کمتر از پنج دقیقه تا اولین درخواست؛ با همان ابزارها و SDKهایی که امروز
+          استفاده می‌کنید.
+        </p>
+      </div>
+      <div class="msr-start-grid">
+        <div class="msr-steps-col msr-reveal">
+          <ol class="msr-steps">
+            <li class="msr-step">
+              <span class="msr-step-num" aria-hidden="true">۱</span>
+              <h3>ثبت‌نام کنید</h3>
+              <p>
+                در
+                <a href="https://masirapi.ir" target="_blank" rel="noopener"
+                  >masirapi.ir</a
+                >
+                یک حساب بسازید؛ کمتر از یک دقیقه طول می‌کشد.
+              </p>
+            </li>
+            <li class="msr-step">
+              <span class="msr-step-num" aria-hidden="true">۲</span>
+              <h3>کلید API بسازید</h3>
+              <p>
+                از بخش «کلیدهای API» در داشبورد، یک کلید جدید بسازید و سهمیهٔ
+                مصرفش را تعیین کنید.
+              </p>
+            </li>
+            <li class="msr-step">
+              <span class="msr-step-num" aria-hidden="true">۳</span>
+              <h3>متصل شوید</h3>
+              <p>
+                آدرس پایه را روی <code>https://masirapi.ir/v1</code> بگذارید و
+                با همان SDK همیشگی درخواست بفرستید.
+              </p>
+            </li>
+          </ol>
+          <div class="msr-tip">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
+              <path d="m9.5 12 2 2 3.5-3.5" />
+            </svg>
+            <p>
+              <strong>نکتهٔ امنیتی:</strong> کلید API را فقط در سرور نگه دارید؛
+              هرگز آن را در کد سمت کاربر یا مخزن عمومی قرار ندهید.
+            </p>
+          </div>
+        </div>
+
+        <div class="msr-code msr-reveal">
+          <input type="radio" name="msr-lang" id="msr-lang-py" checked />
+          <input type="radio" name="msr-lang" id="msr-lang-node" />
+          <input type="radio" name="msr-lang" id="msr-lang-curl" />
+          <div class="msr-code-head">
+            <span class="msr-code-dots" aria-hidden="true"
+              ><i style="background: #fb7185"></i
+              ><i style="background: #fbbf24"></i
+              ><i style="background: #34d399"></i
+            ></span>
+            <label for="msr-lang-py">Python</label>
+            <label for="msr-lang-node">Node.js</label>
+            <label for="msr-lang-curl">cURL</label>
+          </div>
+          <div class="msr-code-body">
+            <div class="msr-panel msr-panel-py">
+              <pre><span class="tk-k">from</span> openai <span class="tk-k">import</span> OpenAI
+
+client = <span class="tk-f">OpenAI</span>(
+<span class="msr-hl">    api_key=<span class="tk-s">"MASIRAPI_API_KEY"</span>,</span>
+<span class="msr-hl">    base_url=<span class="tk-s">"https://masirapi.ir/v1"</span>,</span>
+)
+
+resp = client.chat.completions.<span class="tk-f">create</span>(
+    model=<span class="tk-s">"gpt-4o"</span>,
+    messages=[{<span class="tk-s">"role"</span>: <span class="tk-s">"user"</span>, <span class="tk-s">"content"</span>: <span class="tk-s">"سلام!"</span>}],
+)
+<span class="tk-f">print</span>(resp.choices[<span class="tk-n">0</span>].message.content)</pre>
+            </div>
+            <div class="msr-panel msr-panel-node">
+              <pre><span class="tk-k">import</span> OpenAI <span class="tk-k">from</span> <span class="tk-s">"openai"</span>;
+
+<span class="tk-k">const</span> client = <span class="tk-k">new</span> <span class="tk-f">OpenAI</span>({
+<span class="msr-hl">  apiKey: process.env.MASIRAPI_API_KEY,</span>
+<span class="msr-hl">  baseURL: <span class="tk-s">"https://masirapi.ir/v1"</span>,</span>
+});
+
+<span class="tk-k">const</span> resp = <span class="tk-k">await</span> client.chat.completions.<span class="tk-f">create</span>({
+  model: <span class="tk-s">"gpt-4o"</span>,
+  messages: [{ role: <span class="tk-s">"user"</span>, content: <span class="tk-s">"سلام!"</span> }],
+});
+console.<span class="tk-f">log</span>(resp.choices[<span class="tk-n">0</span>].message.content);</pre>
+            </div>
+            <div class="msr-panel msr-panel-curl">
+              <pre><span class="msr-hl"><span class="tk-f">curl</span> https://masirapi.ir/v1/chat/completions \</span>
+<span class="msr-hl">  -H <span class="tk-s">"Authorization: Bearer $MASIRAPI_API_KEY"</span> \</span>
+  -H <span class="tk-s">"Content-Type: application/json"</span> \
+  -d <span class="tk-s">'{
+    "model": "gpt-4o",
+    "messages": [{"role": "user", "content": "سلام!"}]
+  }'</span></pre>
+            </div>
+          </div>
+          <p class="msr-code-foot">
+            <strong>فقط دو خط مشخص‌شده</strong> را با کلید و آدرس Masirapi
+            جایگزین کنید؛ بقیهٔ کد دست‌نخورده می‌ماند.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="msr-divider" aria-hidden="true"></div>
+
+  <!-- FAQ -->
+  <section class="msr-section" aria-labelledby="msr-faq-title">
+    <div class="msr-wrap">
+      <div class="msr-reveal">
+        <p class="msr-kicker">پیش از شروع</p>
+        <h2 id="msr-faq-title">سؤال‌های پرتکرار</h2>
+      </div>
+      <div class="msr-faq msr-reveal">
+        <details>
+          <summary>
+            آیا باید کدم را تغییر بدهم؟
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+          <p class="msr-faq-a">
+            خیر. Masirapi با فرمت OpenAI سازگار است؛ کافی است Base URL و کلید
+            API را در همان SDK یا ابزار فعلی جایگزین کنید. درخواست‌ها و پاسخ‌ها
+            با همان ساختار آشنای قبلی ردوبدل می‌شوند.
+          </p>
+        </details>
+        <details>
+          <summary>
+            هزینه‌ها چگونه محاسبه می‌شود؟
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+          <p class="msr-faq-a">
+            بر اساس مصرف واقعی هر درخواست و قیمت اعلام‌شدهٔ همان مدل، به تومان.
+            قیمت هر مدل پیش از استفاده مشخص است و گزارش دقیق هر درخواست در
+            داشبورد مصرف قابل مشاهده است.
+          </p>
+        </details>
+        <details>
+          <summary>
+            اگر یک ارائه‌دهنده در دسترس نباشد چه؟
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+          <p class="msr-faq-a">
+            درخواست‌ها میان کانال‌های جایگزین مسیریابی می‌شوند تا سرویس شما
+            پایدار بماند؛ بدون اینکه تغییری در سمت شما لازم باشد.
+          </p>
+        </details>
+        <details>
+          <summary>
+            اخبار مدل‌ها و قیمت‌ها را از کجا دنبال کنم؟
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+          <p class="msr-faq-a">
+            همهٔ اطلاعیه‌ها، مدل‌های جدید و تغییرات قیمت در کانال تلگرام
+            <a href="https://t.me/masirapi" target="_blank" rel="noopener"
+              ><bdi dir="ltr">@masirapi</bdi></a
+            >
+            منتشر می‌شود. با عضویت در کانال، هیچ خبری را از دست نمی‌دهید.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Telegram CTA -->
+  <section
+    class="msr-section"
+    aria-labelledby="msr-tg-title"
+    style="padding-top: 0"
+  >
+    <div class="msr-wrap">
+      <div class="msr-telegram msr-reveal">
+        <span class="msr-tg-icon" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M22 2 11 13" />
+            <path d="M22 2 15 22l-4-9-9-4 20-7z" />
+          </svg>
+        </span>
+        <div class="msr-telegram-copy">
+          <h2 id="msr-tg-title">از تغییرات جا نمانید</h2>
+          <p>
+            مدل‌های جدید، به‌روزرسانی قیمت‌ها و اطلاعیه‌های مهم را اول از همه در
+            کانال تلگرام Masirapi ببینید.
+          </p>
+        </div>
+        <div class="msr-telegram-actions">
+          <a
+            class="msr-btn msr-btn-tg"
+            href="https://t.me/masirapi"
+            target="_blank"
+            rel="noopener"
+            >عضویت در کانال تلگرام
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M19 12H5" />
+              <path d="m11 18-6-6 6-6" />
+            </svg>
+          </a>
+          <span class="msr-tg-address">t.me/masirapi</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <footer class="msr-footer">
+    <div class="msr-wrap">
+      <div class="msr-footer-grid">
+        <p>از اینکه همراه Masirapi هستید سپاسگزاریم.</p>
+        <nav aria-label="پیوندهای مرتبط">
+          <a href="/pricing">مدل‌ها و قیمت‌ها</a>
+          <a href="https://t.me/masirapi" target="_blank" rel="noopener"
+            >کانال تلگرام</a
+          >
+          <a href="/sign-up">ثبت‌نام</a>
+        </nav>
+      </div>
+      <div class="msr-footer-base">
+        <small>© ۱۴۰۵ Masirapi — یک کلید، همهٔ مدل‌ها.</small>
+        <a
+          class="msr-enamad"
+          referrerpolicy="origin"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://trustseal.enamad.ir/?id=8450885&Code=mzh8m4XChho5LEyKeaOpIaDeG6a9OBAg"
+          aria-label="نماد اعتماد الکترونیکی"
+          ><img
+            referrerpolicy="origin"
+            src="https://trustseal.enamad.ir/logo.aspx?id=8450885&Code=mzh8m4XChho5LEyKeaOpIaDeG6a9OBAg"
+            alt="نماد اعتماد الکترونیکی"
+            code="mzh8m4XChho5LEyKeaOpIaDeG6a9OBAg"
+        /></a>
+      </div>
+    </div>
+  </footer>
+</div>
