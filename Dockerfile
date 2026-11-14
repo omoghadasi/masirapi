@@ -13,7 +13,7 @@ FROM golang:1.26.10-alpine@sha256:9ce231b28998b32e116927c61aa5c406183061d4f3f2d6
 # ponytail: proxy.golang.org gives 403 from Docker VM (GFW SNI filter); goproxy.cn works.
 # The Liara mirror (Iran) is first so builds on Iranian networks download fast;
 # the other proxies remain as fallbacks.
-ENV GOPROXY=https://mirror-go.pkg.shecan.ir,https://goproxy.cn,https://proxy.golang.org,direct
+ENV GOPROXY=https://mirror-go.pkg.shecan.ir,https://mirror.kargadan.ir/repository/go-group/,direct
 # goproxy.cn drops long HTTP/2 streams (GOAWAY) mid-download; HTTP/1.1 survives.
 ENV GODEBUG=http2client=0
 ENV GO111MODULE=on CGO_ENABLED=0 GOWORK=off
