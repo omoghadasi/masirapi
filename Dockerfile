@@ -36,7 +36,7 @@ COPY . .
 COPY --from=builder /build/web/dist ./web/dist
 # cmd/netarz-rates and cmd/wallex-rates are the FX rate sync helpers: one binary
 # each, same image, run by their docker-compose services - not by the API process.
-RUN go build -pgo="$(go list -m -f '{{.Dir}}' github.com/Calcium-Ion/moejs)/default.pgo" -ldflags "-s -w -X 'github.com/QuantumNous/new-api/common.Version=$(cat VERSION)'" -o new-api \
+RUN go build -pgo="$(go list -m -f '{{.Dir}}' github.com/MoeForge/moejs)/default.pgo" -ldflags "-s -w -X 'github.com/QuantumNous/new-api/common.Version=$(cat VERSION)'" -o new-api \
  && go build -trimpath -ldflags "-s -w" -o netarz-rates ./cmd/netarz-rates \
  && go build -trimpath -ldflags "-s -w" -o wallex-rates ./cmd/wallex-rates
 
