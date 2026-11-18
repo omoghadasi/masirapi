@@ -7376,6 +7376,14 @@
     "Zhipu": "Zhipu",
     "Zhipu GLM": "Zhipu GLM",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "زوم"
+    "Zoom": "زوم",
+    "Zibal Gateway": "درگاه زیبال",
+    "Requires the payment compliance confirmation and a merchant ID unless test mode is on.": "نیازمند تأیید مقررات پرداخت و شناسه پذیرنده است، مگر در حالت آزمایشی.",
+    "Enable Zibal": "فعال‌سازی زیبال",
+    "Use Zibal test mode": "استفاده از حالت آزمایشی زیبال",
+    "Routes payments to Zibal's built-in test merchant for testing.": "پرداخت‌ها را برای تست به پذیرنده آزمایشی داخلی زیبال هدایت می‌کند.",
+    "Zibal Merchant ID": "شناسه پذیرنده زیبال",
+    "The unit of the top-up price. Zibal always bills in Rial, so amounts in Toman are multiplied by ten.": "واحد قیمت شارژ. زیبال همیشه مبلغ را به ریال دریافت می‌کند، بنابراین مبالغ تومانی در ده ضرب می‌شوند.",
+    "Smallest recharge amount accepted by this gateway, in the unit used by the wallet form. Zibal requires at least 1,000 Rial.": "کمترین مبلغ شارژ پذیرفته‌شده توسط این درگاه، به واحد فرم کیف پول. زیبال حداقل ۱٬۰۰۰ ریال را می‌پذیرد."
   }
 }

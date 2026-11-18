@@ -57,7 +57,7 @@ import type {
   UserSubscriptionRecord,
 } from '@/features/subscriptions/types'
 import { isPersianIntlLocale, toIntlLocale } from '@/i18n/languages'
-import {  formatQuota, formatTimestampToDate } from '@/lib/format'
+import { formatQuota, formatTimestampToDate } from '@/lib/format'
 import { handleServerError } from '@/lib/handle-server-error'
 import { requireServerSuccess } from '@/lib/server-error-message'
 import { cn } from '@/lib/utils'
@@ -77,7 +77,8 @@ function getEpayMethods(payMethods: PaymentMethod[] = []): PaymentMethod[] {
       m?.type &&
       m.type !== 'stripe' &&
       m.type !== 'creem' &&
-      m.type !== 'zarinpal'
+      m.type !== 'zarinpal' &&
+      m.type !== 'zibal'
   )
 }
 

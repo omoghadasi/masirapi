@@ -333,6 +333,44 @@ func TestZarinpalWebhookEnabledRequiresComplianceAndMerchantID(t *testing.T) {
 	paymentSetting := operation_setting.GetPaymentSetting()
 	paymentSetting.ComplianceConfirmed = false
 	require.False(t, isZarinpalTopUpEnabled())
+}
+
+func TestZibalWebhookEnabledRequiresComplianceAndMerchantID(t *testing.T) {
+	confirmPaymentComplianceForTest(t)
+	zibal := setting.GetZibalSetting()
+	originalEnabled := zibal.Enabled
+	originalMerchantID := zibal.MerchantID
+	originalSandbox := zibal.Sandbox
+	t.Cleanup(func() {
+		zibal.Enabled = originalEnabled
+		zibal.MerchantID = originalMerchantID
+		zibal.Sandbox = originalSandbox
+	})
+
+	zibal.Enabled = true
+	zibal.Sandbox = false
+	zibal.MerchantID = "  "
+	require.False(t, isZibalWebhookEnabled())
+
+	zibal.MerchantID = "zibal-merchant-id"
+	require.True(t, isZibalWebhookEnabled())
+
+	// Sandbox uses Zibal's built-in test merchant, so no merchant ID is needed.
+	zibal.MerchantID = ""
+	zibal.Sandbox = true
+	require.True(t, isZibalWebhookEnabled())
+
+	zibal.Enabled = false
+	require.False(t, isZibalWebhookEnabled())
+
+	// An unconfirmed compliance statement disables every online gateway,
+	// including one that is fully configured.
+	zibal.Enabled = true
+	paymentSetting := operation_setting.GetPaymentSetting()
+	paymentSetting.ComplianceConfirmed = false
+	require.False(t, isZibalTopUpEnabled())
+}
+
 // newEpayRSAKeyPairForTest returns a throwaway key pair as single-line Base64
 // text, the format Epay merchant consoles show.
 func newEpayRSAKeyPairForTest(t *testing.T) (string, string) {

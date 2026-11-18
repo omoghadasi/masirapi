@@ -40,6 +40,7 @@ export type PaymentResponse = ApiResponse<Record<string, unknown>> & {
 }
 export type StripePaymentResponse = ApiResponse<{ pay_link: string }>
 export type ZarinpalPaymentResponse = ApiResponse<{ pay_link: string }>
+export type ZibalPaymentResponse = ApiResponse<{ pay_link: string }>
 export type AffiliateCodeResponse = ApiResponse<string>
 export type AffiliateTransferResponse = ApiResponse
 export type CreemPaymentResponse = ApiResponse<{ checkout_url: string }>
@@ -155,6 +156,10 @@ export interface TopupInfo {
   enable_zarinpal_topup?: boolean
   /** Minimum topup amount for ZarinPal */
   zarinpal_min_topup?: number
+  /** Whether Zibal topup is enabled */
+  enable_zibal_topup?: boolean
+  /** Minimum topup amount for Zibal */
+  zibal_min_topup?: number
   /** Whether redemption code usage is enabled */
   enable_redemption?: boolean
   /** Whether compliance confirmation has been completed */

@@ -7770,6 +7770,14 @@
     "Zhipu V4": "Zhipu V 4",
     "Zoom": "ズーム",
     "By clicking sign in, you agree to our": "サインインをクリックすると、以下に同意したことになります：",
-    "By creating an account, you agree to our": "アカウントを作成すると、以下に同意したことになります："
+    "By creating an account, you agree to our": "アカウントを作成すると、以下に同意したことになります：",
+    "Zibal Gateway": "Zibal ゲートウェイ",
+    "Requires the payment compliance confirmation and a merchant ID unless test mode is on.": "テストモードを除き、支払いコンプライアンスの確認とマーチャント ID が必要です。",
+    "Enable Zibal": "Zibal を有効化",
+    "Use Zibal test mode": "Zibal テストモードを使用",
+    "Routes payments to Zibal's built-in test merchant for testing.": "テスト用に Zibal 内蔵のテストマーチャントへ支払いをルーティングします。",
+    "Zibal Merchant ID": "Zibal マーチャント ID",
+    "The unit of the top-up price. Zibal always bills in Rial, so amounts in Toman are multiplied by ten.": "チャージ価格の単位。Zibal は常にリヤルで請求するため、トマン単位の金額は 10 倍されます。",
+    "Smallest recharge amount accepted by this gateway, in the unit used by the wallet form. Zibal requires at least 1,000 Rial.": "このゲートウェイが受け付ける最小チャージ額（ウォレットフォームの単位）。Zibal は最低 1,000 リヤルが必要です。"
   }
 }

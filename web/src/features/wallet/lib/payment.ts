@@ -122,6 +122,17 @@ export function isZarinpalPayment(paymentType: string): boolean {
   return paymentType === PAYMENT_TYPES.ZARINPAL
 }
 
+/**
+ * Check if payment method is Zibal
+ *
+ * Zibal answers with a hosted checkout URL instead of an epay form, and it
+ * settles the order on the browser redirect after a server-side verification,
+ * so it must be special-cased in payment dispatch logic.
+ */
+export function isZibalPayment(paymentType: string): boolean {
+  return paymentType === PAYMENT_TYPES.ZIBAL
+}
+
 export interface PaymentProcessors {
   regular: (topupAmount: number, paymentType: string) => Promise<boolean>
   waffo: (topupAmount: number, payMethodIndex: number) => Promise<boolean>
@@ -177,6 +188,10 @@ export function getDefaultPaymentType(topupInfo: TopupInfo | null): string {
     return PAYMENT_TYPES.ZARINPAL
   }
 
+  if (topupInfo.enable_zibal_topup) {
+    return PAYMENT_TYPES.ZIBAL
+  }
+
   return DEFAULT_PAYMENT_TYPE
 }
 
@@ -206,6 +221,10 @@ export function getMinTopupAmount(topupInfo: TopupInfo | null): number {
 
   if (topupInfo.enable_zarinpal_topup) {
     return topupInfo.zarinpal_min_topup || DEFAULT_MIN_TOPUP
+  }
+
+  if (topupInfo.enable_zibal_topup) {
+    return topupInfo.zibal_min_topup || DEFAULT_MIN_TOPUP
   }
 
   return DEFAULT_MIN_TOPUP

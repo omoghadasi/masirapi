@@ -135,7 +135,8 @@ export function RechargeFormCard({
     topupInfo?.enable_stripe_topup ||
     enableWaffoTopup ||
     enableWaffoPancakeTopup ||
-    topupInfo?.enable_zarinpal_topup
+    topupInfo?.enable_zarinpal_topup ||
+    topupInfo?.enable_zibal_topup
   const hasAnyTopup = hasConfigurableTopup || enableCreemTopup
   const hasStandardPaymentMethods =
     Array.isArray(topupInfo?.pay_methods) && topupInfo.pay_methods.length > 0

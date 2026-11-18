@@ -193,6 +193,14 @@ const BILLING_SECTIONS = [
               : 'toman',
           ZarinpalMinTopUp: settings['zarinpal_setting.min_topup'] ?? 1,
         }}
+        zibalDefaultValues={{
+          ZibalEnabled: settings['zibal_setting.enabled'] ?? false,
+          ZibalMerchantID: settings['zibal_setting.merchant_id'] ?? '',
+          ZibalSandbox: settings['zibal_setting.sandbox'] ?? false,
+          ZibalAmountUnit:
+            settings['zibal_setting.amount_unit'] === 'rial' ? 'rial' : 'toman',
+          ZibalMinTopUp: settings['zibal_setting.min_topup'] ?? 100,
+        }}
         complianceDefaults={{
           confirmed: settings['payment_setting.compliance_confirmed'] ?? false,
           termsVersion:

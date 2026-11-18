@@ -95,6 +95,11 @@ import {
   ZarinpalSettingsSection,
   type ZarinpalSettingsValues,
 } from './zarinpal-settings-section'
+import {
+  ZIBAL_OPTION_KEYS,
+  ZibalSettingsSection,
+  type ZibalSettingsValues,
+} from './zibal-settings-section'
 
 function isHttpOriginUrl(value: string) {
   const trimmed = value.trim()
@@ -204,6 +209,15 @@ const paymentSchema = z.object({
     .number()
     .int('Value must be at least 1')
     .min(1, 'Value must be at least 1'),
+  // Zibal (zibal_setting.* options)
+  ZibalEnabled: z.boolean(),
+  ZibalMerchantID: z.string(),
+  ZibalSandbox: z.boolean(),
+  ZibalAmountUnit: z.string(),
+  ZibalMinTopUp: z.coerce
+    .number()
+    .int('Value must be at least 1')
+    .min(1, 'Value must be at least 1'),
 })
 
 type PaymentFormValues = z.infer<typeof paymentSchema>
@@ -213,6 +227,7 @@ type PaymentBaseFormValues = Omit<
   | keyof WaffoFormFieldValues
   | keyof WaffoPancakeSettingsValues
   | keyof ZarinpalSettingsValues
+  | keyof ZibalSettingsValues
 >
 
 const CURRENT_COMPLIANCE_TERMS_VERSION = 'v1'
@@ -230,6 +245,7 @@ type PaymentSettingsSectionProps = {
   waffoDefaultValues: WaffoSettingsValues
   waffoPancakeDefaultValues: WaffoPancakeSettingsValues
   zarinpalDefaultValues: ZarinpalSettingsValues
+  zibalDefaultValues: ZibalSettingsValues
   waffoPancakeProvisionedStoreID?: string
   waffoPancakeProvisionedProductID?: string
   complianceDefaults: PaymentComplianceDefaults
@@ -249,6 +265,7 @@ export function PaymentSettingsSection({
   waffoDefaultValues,
   waffoPancakeDefaultValues,
   zarinpalDefaultValues,
+  zibalDefaultValues,
   waffoPancakeProvisionedStoreID,
   waffoPancakeProvisionedProductID,
   complianceDefaults,
@@ -262,12 +279,14 @@ export function PaymentSettingsSection({
       ...waffoDefaultValues,
       ...waffoPancakeDefaultValues,
       ...zarinpalDefaultValues,
+      ...zibalDefaultValues,
     }),
     [
       defaultValues,
       waffoDefaultValues,
       waffoPancakeDefaultValues,
       zarinpalDefaultValues,
+      zibalDefaultValues,
     ]
   )
   const initialRef = React.useRef(initialFormValues)
@@ -455,6 +474,19 @@ export function PaymentSettingsSection({
     [setPaymentValue]
   )
 
+  const setZibalValue = React.useCallback(
+    <K extends keyof ZibalSettingsValues>(
+      key: K,
+      value: ZibalSettingsValues[K]
+    ) => {
+      setPaymentValue(
+        key as keyof PaymentFormValues,
+        value as PaymentFormValues[keyof PaymentFormValues]
+      )
+    },
+    [setPaymentValue]
+  )
+
   React.useEffect(() => {
     const parsedDefaults = JSON.parse(defaultsSignature) as PaymentFormValues
     initialRef.current = parsedDefaults
@@ -516,6 +548,11 @@ export function PaymentSettingsSection({
       ZarinpalSandbox: values.ZarinpalSandbox,
       ZarinpalAmountUnit: values.ZarinpalAmountUnit,
       ZarinpalMinTopUp: values.ZarinpalMinTopUp,
+      ZibalEnabled: values.ZibalEnabled,
+      ZibalMerchantID: values.ZibalMerchantID.trim(),
+      ZibalSandbox: values.ZibalSandbox,
+      ZibalAmountUnit: values.ZibalAmountUnit,
+      ZibalMinTopUp: values.ZibalMinTopUp,
     }
 
     const initial = {
@@ -571,12 +608,28 @@ export function PaymentSettingsSection({
       ZarinpalSandbox: initialRef.current.ZarinpalSandbox,
       ZarinpalAmountUnit: initialRef.current.ZarinpalAmountUnit,
       ZarinpalMinTopUp: initialRef.current.ZarinpalMinTopUp,
+      ZibalEnabled: initialRef.current.ZibalEnabled,
+      ZibalMerchantID: initialRef.current.ZibalMerchantID.trim(),
+      ZibalSandbox: initialRef.current.ZibalSandbox,
+      ZibalAmountUnit: initialRef.current.ZibalAmountUnit,
+      ZibalMinTopUp: initialRef.current.ZibalMinTopUp,
     }
 
     const updates: Array<{ key: string; value: string | number | boolean }> = []
 
     // Empty merchant ID would brick the gateway while "enabled" claims it is on.
     if (sanitized.ZarinpalEnabled && !sanitized.ZarinpalMerchantID) {
+      toast.error(t('Merchant ID is required'))
+      return
+    }
+
+    // Zibal's test mode uses the built-in test merchant, so only live mode
+    // requires a merchant ID.
+    if (
+      sanitized.ZibalEnabled &&
+      !sanitized.ZibalSandbox &&
+      !sanitized.ZibalMerchantID
+    ) {
       toast.error(t('Merchant ID is required'))
       return
     }
@@ -807,6 +860,13 @@ export function PaymentSettingsSection({
       }
     }
 
+    for (const [field, optionKey] of Object.entries(ZIBAL_OPTION_KEYS)) {
+      const key = field as keyof ZibalSettingsValues
+      if (sanitized[key] !== initial[key]) {
+        updates.push({ key: optionKey, value: sanitized[key] })
+      }
+    }
+
     const hasWaffoPancakeChanges =
       sanitized.WaffoPancakeMerchantID !== initial.WaffoPancakeMerchantID ||
       sanitized.WaffoPancakePrivateKey.length > 0 ||
@@ -906,6 +966,13 @@ export function PaymentSettingsSection({
     ZarinpalAmountUnit: currentFormValues.ZarinpalAmountUnit,
     ZarinpalMinTopUp: currentFormValues.ZarinpalMinTopUp,
   }
+  const zibalValues: ZibalSettingsValues = {
+    ZibalEnabled: currentFormValues.ZibalEnabled,
+    ZibalMerchantID: currentFormValues.ZibalMerchantID,
+    ZibalSandbox: currentFormValues.ZibalSandbox,
+    ZibalAmountUnit: currentFormValues.ZibalAmountUnit,
+    ZibalMinTopUp: currentFormValues.ZibalMinTopUp,
+  }
   const waffoPancakeValues: WaffoPancakeSettingsValues = {
     WaffoPancakeMerchantID: currentFormValues.WaffoPancakeMerchantID,
     WaffoPancakePrivateKey: currentFormValues.WaffoPancakePrivateKey,
@@ -993,7 +1060,7 @@ export function PaymentSettingsSection({
           />
           <Tabs defaultValue='general' className='min-w-0'>
             <div className='overflow-x-auto pb-1'>
-              <TabsList className='grid min-w-[48rem] grid-cols-7'>
+              <TabsList className='grid min-w-[56rem] grid-cols-8'>
                 <TabsTrigger value='general'>{t('General')}</TabsTrigger>
                 <TabsTrigger value='epay'>Epay</TabsTrigger>
                 <TabsTrigger value='stripe'>{t('Stripe')}</TabsTrigger>
@@ -1001,6 +1068,7 @@ export function PaymentSettingsSection({
                 <TabsTrigger value='waffo-pancake'>Waffo Pancake</TabsTrigger>
                 <TabsTrigger value='waffo'>Waffo</TabsTrigger>
                 <TabsTrigger value='zarinpal'>ZarinPal</TabsTrigger>
+                <TabsTrigger value='zibal'>Zibal</TabsTrigger>
               </TabsList>
             </div>
 
@@ -1838,6 +1906,13 @@ export function PaymentSettingsSection({
               <ZarinpalSettingsSection
                 values={zarinpalValues}
                 onValueChange={setZarinpalValue}
+              />
+            </TabsContent>
+
+            <TabsContent value='zibal' className={paymentTabContentClassName}>
+              <ZibalSettingsSection
+                values={zibalValues}
+                onValueChange={setZibalValue}
               />
             </TabsContent>
           </Tabs>

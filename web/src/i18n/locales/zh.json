@@ -7770,6 +7770,14 @@
     "Zhipu V4": "智谱 V4",
     "Zoom": "缩放",
     "By clicking sign in, you agree to our": "点击登录即表示您同意我们的",
-    "By creating an account, you agree to our": "创建账户即表示您同意我们的"
+    "By creating an account, you agree to our": "创建账户即表示您同意我们的",
+    "Zibal Gateway": "Zibal 网关",
+    "Requires the payment compliance confirmation and a merchant ID unless test mode is on.": "需要确认支付合规声明并提供商户 ID，测试模式除外。",
+    "Enable Zibal": "启用 Zibal",
+    "Use Zibal test mode": "使用 Zibal 测试模式",
+    "Routes payments to Zibal's built-in test merchant for testing.": "将支付路由至 Zibal 内置测试商户以进行测试。",
+    "Zibal Merchant ID": "Zibal 商户 ID",
+    "The unit of the top-up price. Zibal always bills in Rial, so amounts in Toman are multiplied by ten.": "充值价格的单位。Zibal 始终以里亚尔结算，因此以托曼为单位的金额会乘以十。",
+    "Smallest recharge amount accepted by this gateway, in the unit used by the wallet form. Zibal requires at least 1,000 Rial.": "此网关接受的最小充值金额，单位为钱包表单使用的单位。Zibal 至少需要 1,000 里亚尔。"
   }
 }

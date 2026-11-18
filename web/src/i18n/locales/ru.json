@@ -7770,6 +7770,14 @@
     "Zhipu V4": "Zhipu V4",
     "Zoom": "Zoom",
     "By clicking sign in, you agree to our": "Нажимая «Войти», вы соглашаетесь с нашими",
-    "By creating an account, you agree to our": "Создавая аккаунт, вы соглашаетесь с нашими"
+    "By creating an account, you agree to our": "Создавая аккаунт, вы соглашаетесь с нашими",
+    "Zibal Gateway": "Платёжный шлюз Zibal",
+    "Requires the payment compliance confirmation and a merchant ID unless test mode is on.": "Требуется подтверждение соответствия платежей и ID продавца, кроме тестового режима.",
+    "Enable Zibal": "Включить Zibal",
+    "Use Zibal test mode": "Использовать тестовый режим Zibal",
+    "Routes payments to Zibal's built-in test merchant for testing.": "Направляет платежи встроенному тестовому продавцу Zibal для проверки.",
+    "Zibal Merchant ID": "ID продавца Zibal",
+    "The unit of the top-up price. Zibal always bills in Rial, so amounts in Toman are multiplied by ten.": "Единица цены пополнения. Zibal всегда списывает суммы в риалах, поэтому суммы в туманах умножаются на десять.",
+    "Smallest recharge amount accepted by this gateway, in the unit used by the wallet form. Zibal requires at least 1,000 Rial.": "Минимальная сумма пополнения, принимаемая этим шлюзом, в единице формы кошелька. Zibal требует не менее 1 000 риалов."
   }
 }

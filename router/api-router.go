@@ -91,6 +91,9 @@ func SetApiRouter(router *gin.Engine) {
 			// ZarinPal has no server-to-server notification: the gateway sends the
 			// payer's browser here and the order is settled by a server-side verify.
 			userRoute.GET("/zarinpal/callback", controller.ZarinpalCallback)
+			// Zibal also confirms server-side: the browser redirect only says
+			// the payer returned, and the order is settled after a verify call.
+			userRoute.GET("/zibal/callback", controller.ZibalCallback)
 			userRoute.GET("/groups", controller.GetUserGroups)
 
 			selfRoute := userRoute.Group("/")
@@ -135,6 +138,7 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.POST("/waffo-pancake/amount", controller.RequestWaffoPancakeAmount)
 				selfRoute.POST("/waffo-pancake/pay", middleware.CriticalRateLimit(), controller.RequestWaffoPancakePay)
 				selfRoute.POST("/zarinpal/pay", middleware.CriticalRateLimit(), controller.RequestZarinpalPay)
+				selfRoute.POST("/zibal/pay", middleware.CriticalRateLimit(), controller.RequestZibalPay)
 				selfRoute.POST("/aff_transfer", middleware.UserCriticalRateLimit("aff-transfer"), controller.TransferAffQuota)
 				selfRoute.PUT("/setting", controller.UpdateUserSetting)
 

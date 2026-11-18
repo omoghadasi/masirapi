@@ -7770,6 +7770,14 @@
     "Zhipu V4": "Zhipu V4",
     "Zoom": "Zoom",
     "By clicking sign in, you agree to our": "En cliquant sur se connecter, vous acceptez nos",
-    "By creating an account, you agree to our": "En créant un compte, vous acceptez nos"
+    "By creating an account, you agree to our": "En créant un compte, vous acceptez nos",
+    "Zibal Gateway": "Passerelle Zibal",
+    "Requires the payment compliance confirmation and a merchant ID unless test mode is on.": "Nécessite la confirmation de conformité des paiements et un ID marchand, sauf en mode test.",
+    "Enable Zibal": "Activer Zibal",
+    "Use Zibal test mode": "Utiliser le mode test Zibal",
+    "Routes payments to Zibal's built-in test merchant for testing.": "Redirige les paiements vers le marchand de test intégré à Zibal.",
+    "Zibal Merchant ID": "ID marchand Zibal",
+    "The unit of the top-up price. Zibal always bills in Rial, so amounts in Toman are multiplied by ten.": "Unité du prix de recharge. Zibal facture toujours en rials, les montants en tomans sont donc multipliés par dix.",
+    "Smallest recharge amount accepted by this gateway, in the unit used by the wallet form. Zibal requires at least 1,000 Rial.": "Montant de recharge minimal accepté par cette passerelle, dans l’unité du formulaire du portefeuille. Zibal exige au moins 1 000 rials."
   }
 }

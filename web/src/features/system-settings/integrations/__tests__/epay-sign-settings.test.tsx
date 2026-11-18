@@ -84,6 +84,20 @@ function PaymentFixture(props: { values: PaymentValues }) {
           WaffoPancakePrivateKey: '',
           WaffoPancakeReturnURL: '',
         }}
+        zarinpalDefaultValues={{
+          ZarinpalEnabled: false,
+          ZarinpalMerchantID: '',
+          ZarinpalSandbox: false,
+          ZarinpalAmountUnit: 'toman',
+          ZarinpalMinTopUp: 1,
+        }}
+        zibalDefaultValues={{
+          ZibalEnabled: false,
+          ZibalMerchantID: '',
+          ZibalSandbox: false,
+          ZibalAmountUnit: 'toman',
+          ZibalMinTopUp: 100,
+        }}
         complianceDefaults={{
           confirmed: true,
           termsVersion: 'v1',

@@ -30,6 +30,7 @@ import type {
   PaymentResponse,
   StripePaymentResponse,
   ZarinpalPaymentResponse,
+  ZibalPaymentResponse,
   AffiliateCodeResponse,
   AffiliateTransferResponse,
   BillingHistoryResponse,
@@ -141,6 +142,18 @@ export async function requestZarinpalPayment(
   request: PaymentRequest
 ): Promise<ZarinpalPaymentResponse> {
   const res = await api.post('/api/user/zarinpal/pay', request, {
+    skipBusinessError: true,
+  } as Record<string, unknown>)
+  return res.data
+}
+
+/**
+ * Request Zibal payment
+ */
+export async function requestZibalPayment(
+  request: PaymentRequest
+): Promise<ZibalPaymentResponse> {
+  const res = await api.post('/api/user/zibal/pay', request, {
     skipBusinessError: true,
   } as Record<string, unknown>)
   return res.data

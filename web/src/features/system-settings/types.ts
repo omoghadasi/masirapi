@@ -360,6 +360,11 @@ export type BillingSettings = {
   'zarinpal_setting.sandbox': boolean
   'zarinpal_setting.amount_unit': string
   'zarinpal_setting.min_topup': number
+  'zibal_setting.enabled': boolean
+  'zibal_setting.merchant_id': string
+  'zibal_setting.sandbox': boolean
+  'zibal_setting.amount_unit': string
+  'zibal_setting.min_topup': number
   'checkin_setting.enabled': boolean
   'checkin_setting.min_quota': number
   'checkin_setting.max_quota': number

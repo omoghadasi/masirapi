@@ -30,6 +30,7 @@ import {
   requestPayment,
   requestStripePayment,
   requestZarinpalPayment,
+  requestZibalPayment,
   isApiSuccess,
 } from '../api'
 import {
@@ -37,6 +38,7 @@ import {
   isWaffoPayment,
   isWaffoPancakePayment,
   isZarinpalPayment,
+  isZibalPayment,
   submitPaymentForm,
 } from '../lib'
 import type {
@@ -45,6 +47,7 @@ import type {
   PaymentResponse,
   StripePaymentResponse,
   ZarinpalPaymentResponse,
+  ZibalPaymentResponse,
 } from '../types'
 
 // ============================================================================
@@ -123,14 +126,21 @@ export function usePayment() {
 
         const isStripe = isStripePayment(paymentType)
         const isZarinpal = isZarinpalPayment(paymentType)
+        const isZibal = isZibalPayment(paymentType)
         const amount = Math.floor(topupAmount)
 
         let response:
           | PaymentResponse
           | StripePaymentResponse
           | ZarinpalPaymentResponse
+          | ZibalPaymentResponse
         if (isZarinpal) {
           response = await requestZarinpalPayment({
+            amount,
+            payment_method: paymentType,
+          })
+        } else if (isZibal) {
+          response = await requestZibalPayment({
             amount,
             payment_method: paymentType,
           })
@@ -151,8 +161,8 @@ export function usePayment() {
           return false
         }
 
-        // Stripe and ZarinPal both answer with a hosted checkout URL
-        if ((isStripe || isZarinpal) && response.data?.pay_link) {
+        // Stripe, ZarinPal and Zibal all answer with a hosted checkout URL
+        if ((isStripe || isZarinpal || isZibal) && response.data?.pay_link) {
           window.open(response.data.pay_link as string, '_blank')
           toast.success(i18next.t('Redirecting to payment page...'))
           return true
